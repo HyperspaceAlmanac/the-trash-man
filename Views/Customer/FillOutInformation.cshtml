@@ -1,23 +1,23 @@
 ﻿@model TrashCollector.Models.Customer
 
 @{
-    ViewData["Title"] = "RegisterAccount";
+    ViewData["Title"] = "FillOutInformation";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>RegisterAccount</h1>
+<h1>Please fill out the information to sign up trash collection service.</h1>
 
 <h4>Customer</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="RegisterAccount">
+        <form asp-action="FillOutInformation">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="IdentityUserId" />
+            <input type="hidden" asp-for="Name" />
+
+            <label class="control-label">@Html.DisplayFor(model => model.Name)</label>
             <div class="form-group">
                 <label asp-for="StreetAddress" class="control-label"></label>
                 <input asp-for="StreetAddress" class="form-control" />
@@ -44,7 +44,7 @@
                 <span asp-validation-for="PickupDay" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>

@@ -20,35 +20,44 @@ namespace TrashCollector.Controllers
         // GET: CustomerController
         public ActionResult Index()
         {
-            return View();
-            /**
-            string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).ToString();
-            Customer customer = _context.Customers.First(c => c.IdentityUserId == userId);
-            return RedirectToAction(nameof(Details), customer); **/
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int customerId = _context.Customers.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
+            return RedirectToAction(nameof(Details), new { CustomerInfo = customerId });
         }
 
         // GET: CustomerController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int CustomerInfo)
         {
-            return View();
+            Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
+            return View(c);
         }
 
         // GET: CustomerController/RegisterAccount
         public ActionResult RegisterAccount(Customer customer)
         {
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int id = _context.Customers.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
+            return RedirectToAction(nameof(FillOutInformation), new { CustomerId = id });
+        }
+
+        // POST: CustomerController/RegisterAccount
+
+        public ActionResult FillOutInformation(int CustomerId)
+        {
+            Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
             return View(customer);
         }
 
         // POST: CustomerController/RegisterAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult RegisterAcount(Customer customer)
+        public ActionResult FillOutInformation(Customer customer)
         {
             try
             {
-                string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).ToString();
-                customer.IdentityUserId = userId;
-                _context.Customers.Add(customer);
+                _context.Customers.Update(customer);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
@@ -67,7 +76,7 @@ namespace TrashCollector.Controllers
         // POST: CustomerController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(Customer customer)
         {
             try
             {
