@@ -4,11 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TrashCollector.Data;
 
 namespace TrashCollector.Controllers
 {
     public class EmployeeController : Controller
     {
+        private ApplicationDbContext _context;
+        public EmployeeController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
         // GET: Employee
         public ActionResult Index()
         {
