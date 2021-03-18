@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,11 +21,13 @@ namespace TrashCollector.Models
         public string State { get; set; }
         public int ZipCode { get; set; }
         [DisplayName("Pickup Day")]
-        public int PikcupDay { get; set; }
+        public int PickupDay { get; set; }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
+        [NotMapped]
+        public SelectList DayOptions { get; set; }
 
     }
 }

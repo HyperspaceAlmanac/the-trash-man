@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TrashCollector.Data;
+using TrashCollector.Models;
 
 namespace TrashCollector.Controllers
 {
@@ -19,6 +21,10 @@ namespace TrashCollector.Controllers
         public ActionResult Index()
         {
             return View();
+            /**
+            string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).ToString();
+            Customer customer = _context.Customers.First(c => c.IdentityUserId == userId);
+            return RedirectToAction(nameof(Details), customer); **/
         }
 
         // GET: CustomerController/Details/5
@@ -27,19 +33,23 @@ namespace TrashCollector.Controllers
             return View();
         }
 
-        // GET: CustomerController/Create
-        public ActionResult Create()
+        // GET: CustomerController/RegisterAccount
+        public ActionResult RegisterAccount(Customer customer)
         {
-            return View();
+            return View(customer);
         }
 
-        // POST: CustomerController/Create
+        // POST: CustomerController/RegisterAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult RegisterAcount(Customer customer)
         {
             try
             {
+                string userId = this.User.FindFirst(ClaimTypes.NameIdentifier).ToString();
+                customer.IdentityUserId = userId;
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch

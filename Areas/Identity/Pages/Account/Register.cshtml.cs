@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using TrashCollector.Models;
 
 namespace TrashCollector.Areas.Identity.Pages.Account
 {
@@ -94,6 +95,7 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     }
                     _logger.LogInformation("User created a new account with password.");
 
+                    /**
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -104,7 +106,7 @@ namespace TrashCollector.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
+                    **/
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
@@ -112,7 +114,8 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        Customer customer = new Customer { Name = user.UserName, IdentityUserId = user.Id};
+                        return RedirectToAction("RegisterAccount", "Customer", customer);
                     }
                 }
                 foreach (var error in result.Errors)
@@ -122,6 +125,7 @@ namespace TrashCollector.Areas.Identity.Pages.Account
             }
 
             // If we got this far, something failed, redisplay form
+            ReturnUrl = returnUrl;
             return Page();
         }
     }
