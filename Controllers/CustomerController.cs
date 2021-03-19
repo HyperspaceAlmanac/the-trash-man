@@ -69,6 +69,10 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
+        public ActionResult PauseService()
+        {
+            return View();
+        }
         private string DayNumToWord(int day)
         {
             switch (day)
