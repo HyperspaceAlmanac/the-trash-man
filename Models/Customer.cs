@@ -30,6 +30,8 @@ namespace TrashCollector.Models
         public IdentityUser IdentityUser { get; set; }
         [NotMapped]
         public SelectList DayOptions { get; set; }
+        [NotMapped]
+        public string DayOfWeek { get; set; }
 
     }
 }

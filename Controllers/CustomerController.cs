@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace TrashCollector.Controllers
         public ActionResult Details(int CustomerInfo)
         {
             Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
+            c.DayOfWeek = DayNumToWord(c.PickupDay);
             return View(c);
         }
 
@@ -47,6 +49,7 @@ namespace TrashCollector.Controllers
         public ActionResult FillOutInformation(int CustomerId)
         {
             Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
             return View(customer);
         }
 
@@ -65,6 +68,45 @@ namespace TrashCollector.Controllers
             {
                 return View();
             }
+        }
+        private string DayNumToWord(int day)
+        {
+            switch (day)
+            {
+                case 1:
+                    return "Monday";
+                case 2:
+                    return "Tuesday";
+                case 3:
+                    return "Wednesday";
+                case 4:
+                    return "Thursday";
+                case 5:
+                    return "Friday";
+                case 6:
+                    return "Saturday";
+                case 7:
+                    return "Sunday";
+                default:
+                    return "Monday";
+            }
+        }
+        private SelectList GenerateDaysSelectList(int day)
+        {
+            if (day == 0)
+            {
+                day = 1;
+            }
+            List<SelectListItem> days = new List<SelectListItem>();
+            days.Add(new SelectListItem() { Text = "Monday", Value = "1", Selected = false });
+            days.Add(new SelectListItem() { Text = "Tuesday", Value = "2", Selected = false });
+            days.Add(new SelectListItem() { Text = "Wednesday", Value = "3", Selected = false });
+            days.Add(new SelectListItem() { Text = "Thursday", Value = "4", Selected = false });
+            days.Add(new SelectListItem() { Text = "Friday", Value = "5", Selected = false });
+            days.Add(new SelectListItem() { Text = "Saturday", Value = "6", Selected = false });
+            days.Add(new SelectListItem() { Text = "Sunday", Value = "7", Selected = false });
+            days[day - 1].Selected = true;
+            return new SelectList(days, "Value", "Text");
         }
 
         // GET: CustomerController/Edit/5
