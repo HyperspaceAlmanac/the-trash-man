@@ -15,32 +15,42 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="IdentityUserId" />
-            <input type="hidden" asp-for="Name" />
+            <input type="hidden" asp-for="LoginEmail" />
 
-            <label class="control-label">@Html.DisplayFor(model => model.Name)</label>
+            <label class="control-label">Email: @Html.DisplayFor(model => model.LoginEmail)</label>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" required />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" required />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="StreetAddress" class="control-label"></label>
-                <input asp-for="StreetAddress" class="form-control" />
+                <input asp-for="StreetAddress" class="form-control" required />
                 <span asp-validation-for="StreetAddress" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="City" class="control-label"></label>
-                <input asp-for="City" class="form-control" />
+                <input asp-for="City" class="form-control" required />
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="State" class="control-label"></label>
-                <input asp-for="State" class="form-control" />
+                <input asp-for="State" class="form-control" required />
                 <span asp-validation-for="State" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ZipCode" class="control-label"></label>
-                <input asp-for="ZipCode" class="form-control" />
+                <input asp-for="ZipCode" class="form-control" required />
                 <span asp-validation-for="ZipCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PickupDay" class="control-label"></label>
-                <input asp-for="PickupDay" class="form-control" />
+                <input asp-for="PickupDay" class="form-control" required />
                 <span asp-validation-for="PickupDay" class="text-danger"></span>
             </div>
             <div class="form-group">

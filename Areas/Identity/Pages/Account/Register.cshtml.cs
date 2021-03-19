@@ -114,7 +114,7 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        Customer customer = new Customer { Name = user.UserName, IdentityUserId = user.Id};
+                        Customer customer = new Customer { LoginEmail = user.UserName, IdentityUserId = user.Id};
                         return RedirectToAction("RegisterAccount", "Customer", customer);
                     }
                 }

@@ -14,7 +14,9 @@ namespace TrashCollector.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string LoginEmail { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         [DisplayName("Street Address")]
         public string StreetAddress { get; set; }
         public string City { get; set; }
