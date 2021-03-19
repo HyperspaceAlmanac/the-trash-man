@@ -114,8 +114,17 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        Customer customer = new Customer { LoginEmail = user.UserName, IdentityUserId = user.Id};
-                        return RedirectToAction("RegisterAccount", "Customer", customer);
+                        if (Input.Role == "Customer")
+                        {
+                            Customer customer = new Customer { LoginEmail = user.UserName, IdentityUserId = user.Id };
+                            return RedirectToAction("RegisterAccount", "Customer", customer);
+                        }
+                        else if (Input.Role == "Employee")
+                        {
+
+                            Employee employee = new Employee { LoginEmail = user.UserName, IdentityUserId = user.Id };
+                            return RedirectToAction("RegisterAccount", "Employee", employee);
+                        }
                     }
                 }
                 foreach (var error in result.Errors)

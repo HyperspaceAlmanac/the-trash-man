@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TrashCollector.Data;
+using TrashCollector.Models;
 
 namespace TrashCollector.Controllers
 {
@@ -15,31 +18,48 @@ namespace TrashCollector.Controllers
         {
             _context = context;
         }
-        // GET: Employee
+        // GET: EmployeeController
         public ActionResult Index()
         {
-            return View();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int employeeId = _context.Employees.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
+            return RedirectToAction(nameof(Details), new { EmployeeInfo = employeeId });
         }
 
-        // GET: Employee/Details/5
-        public ActionResult Details(int id)
+        // GET: EmployeeController/Details/5
+        public ActionResult Details(int EmployeeInfo)
         {
-            return View();
+            Employee c = _context.Employees.Where(c => c.Id == EmployeeInfo).SingleOrDefault();
+            return View(c);
         }
 
-        // GET: Employee/Create
-        public ActionResult Create()
+        // GET: EmployeeController/RegisterAccount
+        public ActionResult RegisterAccount(Employee employee)
         {
-            return View();
+            _context.Employees.Add(employee);
+            _context.SaveChanges();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int id = _context.Employees.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
+            return RedirectToAction(nameof(FillOutInformation), new { EmployeeId = id });
         }
 
-        // POST: Employee/Create
+        // POST: EmployeeController/RegisterAccount
+
+        public ActionResult FillOutInformation(int EmployeeId)
+        {
+            Employee employee = _context.Employees.Where(c => c.Id == EmployeeId).SingleOrDefault();
+            return View(employee);
+        }
+
+        // POST: EmployeeController/RegisterAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult FillOutInformation(Employee employee)
         {
             try
             {
+                _context.Employees.Update(employee);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -47,47 +67,44 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-
-        // GET: Employee/Edit/5
-        public ActionResult Edit(int id)
+        private string DayNumToWord(int day)
         {
-            return View();
+            switch (day)
+            {
+                case 1:
+                    return "Monday";
+                case 2:
+                    return "Tuesday";
+                case 3:
+                    return "Wednesday";
+                case 4:
+                    return "Thursday";
+                case 5:
+                    return "Friday";
+                case 6:
+                    return "Saturday";
+                case 7:
+                    return "Sunday";
+                default:
+                    return "Monday";
+            }
         }
-
-        // POST: Employee/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        private SelectList GenerateDaysSelectList(int day)
         {
-            try
+            if (day == 0)
             {
-                return RedirectToAction(nameof(Index));
+                day = 1;
             }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Employee/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Employee/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            List<SelectListItem> days = new List<SelectListItem>();
+            days.Add(new SelectListItem() { Text = "Monday", Value = "1", Selected = false });
+            days.Add(new SelectListItem() { Text = "Tuesday", Value = "2", Selected = false });
+            days.Add(new SelectListItem() { Text = "Wednesday", Value = "3", Selected = false });
+            days.Add(new SelectListItem() { Text = "Thursday", Value = "4", Selected = false });
+            days.Add(new SelectListItem() { Text = "Friday", Value = "5", Selected = false });
+            days.Add(new SelectListItem() { Text = "Saturday", Value = "6", Selected = false });
+            days.Add(new SelectListItem() { Text = "Sunday", Value = "7", Selected = false });
+            days[day - 1].Selected = true;
+            return new SelectList(days, "Value", "Text");
         }
     }
 }
