@@ -28,12 +28,14 @@ namespace TrashCollector.Models
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
+
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+
         [NotMapped]
         public SelectList DayOptions { get; set; }
         [NotMapped]
         public string DayOfWeek { get; set; }
-        [NotMapped]
-        public PauseService SuspendedDays { get; set; }
         [NotMapped]
         public List<OneTimePickups> oneTimePickups {get; set;}
 
