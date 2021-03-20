@@ -29,10 +29,10 @@ namespace TrashCollector.Models
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
 
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd MM yyyy}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM dd yyyy}")]
         [DataType(DataType.Date)]
         public DateTime? StartDate { get; set; }
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd MM yyyy}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM dd yyyy}")]
         [DataType(DataType.Date)]
         public DateTime? EndDate { get; set; }
 
@@ -42,6 +42,8 @@ namespace TrashCollector.Models
         public string DayOfWeek { get; set; }
         [NotMapped]
         public List<OneTimePickup> oneTimePickups {get; set;}
+        [NotMapped]
+        public string TodayString { get; set; }
 
     }
 }

@@ -49,11 +49,17 @@
             <dd>
                 @Html.DisplayFor(model => model.ZipCode)
             </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.PickupDay)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.PickupDay)
+            </dd>
+            <dt>
+                <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id">Update Information Or Change Collection Day</a>
+            </dt>
         </dl>
     </div>
-</div>
-<div>
-    <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id">Edit Information</a>
 </div>
 <h1>Pause Service</h1>
 <div>
@@ -63,11 +69,11 @@
     }
     else
     {
-        <p>The service is currently paused from @Model.StartDate to @Model.EndDate </p>
-        <a asp-action="RestoreService" asp-route-CustomerId="@Model.Id">Click here to restore service</a>
+        <p>The service is currently paused from @Model.StartDate.Value.ToShortDateString()  to @Model.EndDate.Value.ToShortDateString() (Resumes the day after) </p>
+        <a asp-action="RestoreService" asp-route-CustomerId="@Model.Id" class="btn btn-primary">Click here to restore service</a>
     }
 </div>
 <h1>Additional One Time Pickups</h1>
 <div>
-    <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id">One Time Pickup</a>
+    <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id" class="btn btn-primary">One Time Pickup</a>
 </div>

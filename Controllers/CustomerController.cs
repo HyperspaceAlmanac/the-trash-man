@@ -75,7 +75,29 @@ namespace TrashCollector.Controllers
         {
             Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
             customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
+            int year = DateTime.Today.Year;
+            string month = (DateTime.Today.Month > 9 ? "" : "0") + DateTime.Today.Month.ToString();
+            string day = (DateTime.Today.Day > 9 ? "" : "0") + DateTime.Today.Day.ToString();
+            string date = $"{year}-{month}-{day}";
+            customer.TodayString = date;
             return View(customer);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult PauseService(Customer customer)
+        {
+            try
+            {
+                _context.Customers.Update(customer);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
 
         public ActionResult RestoreService(int CustomerId)
@@ -92,22 +114,6 @@ namespace TrashCollector.Controllers
             catch
             {
                 return RedirectToAction(nameof(Details), new { CustomerInfo = CustomerId });
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult PauseService(Customer customer)
-        {
-            try
-            {
-                _context.Customers.Update(customer);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
             }
         }
         private string DayNumToWord(int day)
