@@ -37,7 +37,7 @@ namespace TrashCollector.Models
         [NotMapped]
         public string DayOfWeek { get; set; }
         [NotMapped]
-        public List<OneTimePickups> oneTimePickups {get; set;}
+        public List<OneTimePickup> oneTimePickups {get; set;}
 
     }
 }
