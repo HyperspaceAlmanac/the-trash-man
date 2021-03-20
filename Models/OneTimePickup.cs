@@ -15,5 +15,10 @@ namespace TrashCollector.Models
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd MM yyyy}")]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
+        [NotMapped]
+        public string ErroMessage { get; set; }
+        [NotMapped]
+        public string TodaysDate { get; set; }
+
     }
 }
