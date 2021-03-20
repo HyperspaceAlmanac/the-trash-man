@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
@@ -11,6 +12,7 @@ using TrashCollector.Models;
 
 namespace TrashCollector.Controllers
 {
+    [Authorize(Roles = "Customer")]
     public class CustomerController : Controller
     {
         private ApplicationDbContext _context;
@@ -69,9 +71,27 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-        public ActionResult PauseService()
+        public ActionResult PauseService(int CustomerId)
         {
-            return View();
+            Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
+            return View(customer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult PauseService(Customer customer)
+        {
+            try
+            {
+                _context.Customers.Update(customer);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
         }
         private string DayNumToWord(int day)
         {
