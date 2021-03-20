@@ -36,6 +36,8 @@ namespace TrashCollector.Data
                         NormalizedName = "EMPLOYEE"
                     }
                 );
+            builder.Entity<OneTimePickup>()
+                .HasKey(pickupDay => new { pickupDay.CustomerId, pickupDay.Date });
         }
 
         public DbSet<Employee> Employees { get; set; }

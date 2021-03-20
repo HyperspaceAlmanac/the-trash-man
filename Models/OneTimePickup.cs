@@ -9,10 +9,11 @@ namespace TrashCollector.Models
 {
     public class OneTimePickup
     {
-        [Key, ForeignKey(nameof(Customer)), Column(Order = 1)]
+        [ForeignKey(nameof(Customer))]
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
-        [Key, Column(Order = 2)]
-        public DateTime Date;
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd MM yyyy}")]
+        [DataType(DataType.Date)]
+        public DateTime Date { get; set; }
     }
 }
