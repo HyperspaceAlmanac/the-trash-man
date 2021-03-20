@@ -64,7 +64,7 @@
     else
     {
         <p>The service is currently paused from @Model.StartDate to @Model.EndDate </p>
-        <a asp-action="RestoreService" asp-routeCustomerId="@Model.Id">Click here to restore service</a>
+        <a asp-action="RestoreService" asp-route-CustomerId="@Model.Id">Click here to restore service</a>
     }
 </div>
 <h1>Additional One Time Pickups</h1>

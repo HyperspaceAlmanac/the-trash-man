@@ -78,6 +78,23 @@ namespace TrashCollector.Controllers
             return View(customer);
         }
 
+        public ActionResult RestoreService(int CustomerId)
+        {
+            try
+            {
+                Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+                customer.StartDate = null;
+                customer.EndDate = null;
+                _context.Customers.Update(customer);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Details), new { CustomerInfo = CustomerId });
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult PauseService(Customer customer)
