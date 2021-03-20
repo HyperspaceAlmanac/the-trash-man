@@ -5,56 +5,69 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<h1>Dashboard</h1>
 
 <div>
     <h4>Customer</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LoginEmail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LoginEmail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StreetAddress)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StreetAddress)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.City)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.City)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.State)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.State)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ZipCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ZipCode)
-        </dd>
-        <dt class = "col-sm-2">
-            Trash Collection Day
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DayOfWeek)
-        </dd>
-    </dl>
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <p> Trash Collection Day: @Html.DisplayFor(model => model.DayOfWeek)</p>
+            <p>Total Charge This Month:</p>
+        </div>
+        <dl class="col-sm-12 col-md-6">
+            <dt>
+                Account Info
+            </dt>
+            <dt>
+                @Html.DisplayNameFor(model => model.LoginEmail)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.LoginEmail)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.StreetAddress)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.StreetAddress)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.City)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.City)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.State)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.State)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.ZipCode)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ZipCode)
+            </dd>
+        </dl>
+    </div>
 </div>
 <div>
     <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id">Edit Information</a>
 </div>
+<h1>Pause Service</h1>
 <div>
-    <a asp-action="PauseService" asp-route-CustomerId="@Model.Id">Pause</a> |
+    @if (Model.StartDate == null)
+    {
+        <a asp-action="PauseService" asp-route-CustomerId="@Model.Id">Click Here to Pause Service</a>
+    }
+    else
+    {
+        <p>The service is currently paused from @Model.StartDate to @Model.EndDate </p>
+        <a asp-action="RestoreService" asp-routeCustomerId="@Model.Id">Click here to restore service</a>
+    }
 </div>
+<h1>Additional One Time Pickups</h1>
 <div>
     <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id">One Time Pickup</a>
 </div>
