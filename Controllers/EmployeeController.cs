@@ -31,8 +31,25 @@ namespace TrashCollector.Controllers
         // GET: EmployeeController/Details/5
         public ActionResult Details(int EmployeeInfo)
         {
-            Employee c = _context.Employees.Where(c => c.Id == EmployeeInfo).SingleOrDefault();
-            return View(c);
+            Employee employee = _context.Employees.Where(e => e.Id == EmployeeInfo).SingleOrDefault();
+            DateTime today = DateTime.Today;
+            if (!employee.UseSimulatedDay)
+            {
+                employee.WeekDay = DayNumToWord(DateTime.Today.DayOfWeek);
+            } else {
+                employee.WeekDay = DayNumToWord(employee.SimulatedDay.Value.DayOfWeek);
+                today = employee.SimulatedDay.Value;
+            }
+            // Set of completed Pickups
+            HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(completed => CompareDays(completed.Date, today) == 0).Select(completed => completed.CustomerId));
+            employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+            HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups.Where(p => CompareDays(p.Date, today) == 0).Select(p => p.CustomerId));
+            // Find all customers in area with trash collection today
+            employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode)
+                                 .Where(c => DayNumToWord(c.PickupDay) == employee.WeekDay || oneTimePickups.Contains(c.Id))
+                                 .Where(c => !alreadyPickedUp.Contains(c.Id))
+                                 .Where(c => c.StartDate == null || !( CompareDays(c.StartDate.Value, today) <= 0 && CompareDays(today, c.EndDate.Value) <= 0)).ToList();
+            return View(employee);
         }
 
         // GET: EmployeeController/RegisterAccount
@@ -69,9 +86,31 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-        private string DayNumToWord(int day)
+        private string DayNumToWord(DayOfWeek val)
         {
-            switch (day)
+            switch (val)
+            {
+                case DayOfWeek.Monday:
+                    return "Monday";
+                case DayOfWeek.Tuesday:
+                    return "Tuesday";
+                case DayOfWeek.Wednesday:
+                    return "Wednesday";
+                case DayOfWeek.Thursday:
+                    return "Thursday";
+                case DayOfWeek.Friday:
+                    return "Friday";
+                case DayOfWeek.Saturday:
+                    return "Saturday";
+                case DayOfWeek.Sunday:
+                    return "Sunday";
+                default:
+                    return "Monday";
+            }
+        }
+        private string DayNumToWord(int val)
+        {
+            switch (val)
             {
                 case 1:
                     return "Monday";
@@ -90,6 +129,34 @@ namespace TrashCollector.Controllers
                 default:
                     return "Monday";
             }
+        }
+        private int CompareDays(DateTime left, DateTime right)
+        {
+            if (left.Year > right.Year)
+            {
+                return 1;
+            }
+            else if (left.Year < right.Year)
+            {
+                return -1;
+            }
+            if (left.Month > right.Month)
+            {
+                return 1;
+            }
+            else if (left.Month < right.Month)
+            {
+                return -1;
+            }
+            if (left.Day > right.Day)
+            {
+                return 1;
+            }
+            else if (left.Day < right.Day)
+            {
+                return -1;
+            }
+            return 0;
         }
         private SelectList GenerateDaysSelectList(int day)
         {

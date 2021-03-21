@@ -43,7 +43,7 @@ namespace TrashCollector.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<OneTimePickup> OneTimePickups { get; set; }
-        public DbSet<CompletedPickup> CompletedPickup { get; set; }
+        public DbSet<CompletedPickup> CompletedPickups { get; set; }
 
     }
 }

@@ -23,7 +23,9 @@ namespace TrashCollector.Models
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
         [NotMapped]
-        public List<Customer> CustomersInArea { get; set; }
+        public List<Customer> Completed { get; set; }
+        [NotMapped]
+        public List<Customer> NeedToCollect { get; set; }
         [NotMapped]
         public string WeekDay { get; set; }
         [NotMapped]
