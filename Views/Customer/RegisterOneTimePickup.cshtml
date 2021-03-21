@@ -7,9 +7,12 @@
 
 <h1>Please select a day for a one time pickup</h1>
 
+<h4>Weekly scheduled pickup will take priority and charges will be based on those rates</h4>
+<h4>Each scheduled pickup will be removed from list after they have been fulfilled</h4>
+
 @if (Model.PreviousError)
 {
-    <h2>Error: Another one time pickup is already scheduled. Please try again</h2>
+    <h4 class="text-danger">Error: Another non-weekly pickup is already scheduled on the same day. Please try again</h4>
 }
 <hr />
 <div class="row">

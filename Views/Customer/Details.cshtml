@@ -74,6 +74,16 @@
     }
 </div>
 <h1>Additional One Time Pickups</h1>
+@foreach (var item in Model.oneTimePickups)
+{
+    <tr>
+        <td>
+            <div>
+                Pickup scheduled for @($"{item.Date.Month}-{item.Date.Day}, {item.Date.Year}") <a class="btn btn-danger" CancelPickup" asp-route-CustomerId=@item.CustomerId asp-route-PickupDate=@item.Date>Cancel</a>
+            </div>
+        </td>
+    </tr>
+}
 <div>
     <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id" class="btn btn-primary">One Time Pickup</a>
 </div>

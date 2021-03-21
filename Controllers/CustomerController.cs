@@ -33,6 +33,7 @@ namespace TrashCollector.Controllers
         {
             Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
             c.DayOfWeek = DayNumToWord(c.PickupDay);
+            c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
             return View(c);
         }
 
@@ -69,6 +70,24 @@ namespace TrashCollector.Controllers
             catch
             {
                 return View();
+            }
+        }
+        public ActionResult CancelPickup(int CustomerId, DateTime PickupDate)
+        {
+            try
+            {
+                var pickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerId && p.Date == PickupDate);
+                // For timing issue of Customer on the page to cancel, but does not cancel until after Employee collects trash
+                if (pickups.Count() == 1)
+                {
+                    _context.OneTimePickups.Remove(pickups.SingleOrDefault());
+                    _context.SaveChanges();
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return RedirectToAction(nameof(Index));
             }
         }
         public ActionResult RegisterOneTimePickup(bool previousError)
