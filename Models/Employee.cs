@@ -16,11 +16,17 @@ namespace TrashCollector.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int ZipCode { get; set; }
+        public bool UseSimulatedDay { get; set; }
+        public DateTime? SimulatedDay { get; set; }
 
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
         [NotMapped]
         public List<Customer> CustomersInArea { get; set; }
+        [NotMapped]
+        public string WeekDay { get; set; }
+        [NotMapped]
+        public int SelectedDay { get; set; }
     }
 }
