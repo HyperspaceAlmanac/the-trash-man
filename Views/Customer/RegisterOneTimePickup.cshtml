@@ -5,9 +5,12 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>RegisterOneTimePickup</h1>
+<h1>Please select a day for a one time pickup</h1>
 
-<h4>OneTimePickup</h4>
+@if (Model.PreviousError)
+{
+    <h2>Error: Another one time pickup is already scheduled. Please try again</h2>
+}
 <hr />
 <div class="row">
     <div class="col-md-4">

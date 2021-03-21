@@ -71,15 +71,48 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
+        public ActionResult RegisterOneTimePickup(bool previousError)
+        {
+            OneTimePickup pickup = new OneTimePickup();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int customerId = _context.Customers.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
+            pickup.CustomerId = customerId;
+            pickup.PreviousError = previousError;
+            pickup.TodaysDate = TodaysDateString();
+            return View(pickup);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RegisterOneTimePickup(OneTimePickup pickup)
+        {
+            try
+            {
+                // Design decision to let customers select a day same as weekly pickup or during suspended period
+                // Customer just cannot select day with another one time pickup in same account
+                if (_context.OneTimePickups.Where(p => p.CustomerId == pickup.CustomerId && p.Date == pickup.Date).Count() > 0)
+                {
+                    return RedirectToAction(nameof(RegisterOneTimePickup), new { previousError = true });
+                }
+                else
+                {
+                    _context.OneTimePickups.Add(pickup);
+                    _context.SaveChanges();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch
+            {
+                return View();
+            }
+        }
         public ActionResult PauseService(int CustomerId)
         {
             Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
             customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
-            int year = DateTime.Today.Year;
-            string month = (DateTime.Today.Month > 9 ? "" : "0") + DateTime.Today.Month.ToString();
-            string day = (DateTime.Today.Day > 9 ? "" : "0") + DateTime.Today.Day.ToString();
-            string date = $"{year}-{month}-{day}";
-            customer.TodayString = date;
+            
+            customer.TodayString = TodaysDateString();
             return View(customer);
         }
 
@@ -116,6 +149,43 @@ namespace TrashCollector.Controllers
                 return RedirectToAction(nameof(Details), new { CustomerInfo = CustomerId });
             }
         }
+        // left < right => -1, left = right => 0, left > right => 1
+        private int CompareDays(DateTime left, DateTime right)
+        {
+            if (left.Year > right.Year)
+            {
+                return 1;
+            }
+            else if (left.Year < right.Year)
+            {
+                return -1;
+            }
+            if (left.Month > right.Month)
+            {
+                return 1;
+            }
+            else if (left.Month < right.Month)
+            {
+                return -1;
+            }
+            if (left.Day > right.Day)
+            {
+                return 1;
+            }
+            else if (left.Day < right.Day)
+            {
+                return -1;
+            }
+            return 0;
+        }
+        private string TodaysDateString()
+        {
+            int year = DateTime.Today.Year;
+            string month = (DateTime.Today.Month > 9 ? "" : "0") + DateTime.Today.Month.ToString();
+            string day = (DateTime.Today.Day > 9 ? "" : "0") + DateTime.Today.Day.ToString();
+            string date = $"{year}-{month}-{day}";
+            return date;
+        }
         private string DayNumToWord(int day)
         {
             switch (day)
@@ -136,6 +206,27 @@ namespace TrashCollector.Controllers
                     return "Sunday";
                 default:
                     return "Monday";
+            }
+        }
+        private int DayEnumToInt(DayOfWeek day) {
+            switch (day)
+            {
+                case DayOfWeek.Monday:
+                    return 1;
+                case DayOfWeek.Tuesday:
+                    return 2;
+                case DayOfWeek.Wednesday:
+                    return 3;
+                case DayOfWeek.Thursday:
+                    return 4;
+                case DayOfWeek.Friday:
+                    return 5;
+                case DayOfWeek.Saturday:
+                    return 6;
+                case DayOfWeek.Sunday:
+                    return 7;
+                default:
+                    return 1;
             }
         }
         private SelectList GenerateDaysSelectList(int day)

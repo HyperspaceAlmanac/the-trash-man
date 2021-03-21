@@ -16,7 +16,7 @@ namespace TrashCollector.Models
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
         [NotMapped]
-        public string ErroMessage { get; set; }
+        public bool PreviousError { get; set; }
         [NotMapped]
         public string TodaysDate { get; set; }
 
