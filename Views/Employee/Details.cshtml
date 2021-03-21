@@ -27,7 +27,8 @@
     <tr>
         <td>
             <div>
-                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}") <a class="btn btn-info" asp-action="CompletePickup" asp-route-CustomerId=@customer.Id>Pickup</a>
+                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Pickup</a>
             </div>
         </td>
     </tr>

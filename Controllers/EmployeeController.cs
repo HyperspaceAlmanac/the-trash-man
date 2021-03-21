@@ -54,8 +54,50 @@ namespace TrashCollector.Controllers
                                  .Where(c => c.StartDate == null ||
                                  !(CompareDays(c.StartDate.Value, today.Date) >= 0)
                                  && (CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
+            // Separate weekly and one time pickups here
+            foreach (var c in employee.NeedToCollect)
+            {
+                if (oneTimePickups.Contains(c.Id))
+                {
+                    c.WeeklyPickup = false;
+                }
+            }
             // Remap to display string
             return View(employee);
+        }
+        public ActionResult CompletePickup(int CustomerId, int EmployeeId, bool weeklyPickup)
+        {
+            Employee employee = _context.Employees.Where(e => e.Id == EmployeeId).FirstOrDefault();
+            DateTime today = DateTime.Today;
+            if (employee.UseSimulatedDay)
+            {
+                today = employee.SimulatedDay.Value;
+            }
+            CompletedPickup pickup = new CompletedPickup();
+            pickup.CustomerId = CustomerId;
+            pickup.Date = today;
+            pickup.OneTimePickup = !weeklyPickup;
+            pickup.Paid = false;
+            // Check if it is weekly schedule
+
+            var pickupSearch = _context.CompletedPickups.Where(p => p.CustomerId == CustomerId &&
+                p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day);
+            if (pickupSearch.Count() == 0)
+            {
+                _context.Add(pickup);
+                _context.SaveChanges();
+            }
+            if (!weeklyPickup)
+            {
+                var oneTimeSearch = _context.OneTimePickups.Where(p => p.CustomerId == CustomerId
+                    && p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day);
+                if (oneTimeSearch.Count() == 1)
+                {
+                    _context.OneTimePickups.Remove(oneTimeSearch.SingleOrDefault());
+                    _context.SaveChanges();
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: EmployeeController/RegisterAccount

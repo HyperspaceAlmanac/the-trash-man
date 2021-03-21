@@ -15,6 +15,7 @@ namespace TrashCollector.Models
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
         public bool OneTimePickup { get; set; }
+        public bool Paid { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd MM yyyy}")]
         [DataType(DataType.Date)]

@@ -44,6 +44,8 @@ namespace TrashCollector.Models
         public List<OneTimePickup> oneTimePickups {get; set;}
         [NotMapped]
         public string TodayString { get; set; }
+        [NotMapped]
+        public bool WeeklyPickup { get; set; }
 
     }
 }
