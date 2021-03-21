@@ -33,28 +33,35 @@ namespace TrashCollector.Controllers
         {
             Employee employee = _context.Employees.Where(e => e.Id == EmployeeInfo).SingleOrDefault();
             DateTime today = DateTime.Today;
-            if (!employee.UseSimulatedDay)
-            {
-                employee.WeekDay = DayNumToWord(DateTime.Today.DayOfWeek);
-            } else {
-                employee.WeekDay = DayNumToWord(employee.SimulatedDay.Value.DayOfWeek);
+            if (employee.UseSimulatedDay) {
                 today = employee.SimulatedDay.Value;
             }
+            
+            string dayOfWeekString;
+            dayOfWeekString = DayNumToWord(today.DayOfWeek);
+            employee.WeekDay = dayOfWeekString + ", " + MonthString(today.Month) + $" {today.Day}, {today.Year}";
+            
             // Set of completed Pickups
-            HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(completed => CompareDays(completed.Date, today) == 0).Select(completed => completed.CustomerId));
+            HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(c => c.Date.Year == today.Year
+                && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
-            HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups.Where(p => CompareDays(p.Date, today) == 0).Select(p => p.CustomerId));
+            HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups
+                .Where(p=> p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
             // Find all customers in area with trash collection today
-            employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode)
-                                 .Where(c => DayNumToWord(c.PickupDay) == employee.WeekDay || oneTimePickups.Contains(c.Id))
+            employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode).ToList()
+                                 .Where(c => DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
-                                 .Where(c => c.StartDate == null || !( CompareDays(c.StartDate.Value, today) <= 0 && CompareDays(today, c.EndDate.Value) <= 0)).ToList();
+                                 .Where(c => c.StartDate == null ||
+                                 !(CompareDays(c.StartDate.Value, today.Date) >= 0)
+                                 && (CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
+            // Remap to display string
             return View(employee);
         }
 
         // GET: EmployeeController/RegisterAccount
         public ActionResult RegisterAccount(Employee employee)
         {
+            employee.UseSimulatedDay = false;
             _context.Employees.Add(employee);
             _context.SaveChanges();
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -128,6 +135,38 @@ namespace TrashCollector.Controllers
                     return "Sunday";
                 default:
                     return "Monday";
+            }
+        }
+        private string MonthString(int month)
+        {
+            switch (month)
+            {
+                case 1:
+                    return "January";
+                case 2:
+                    return "February";
+                case 3:
+                    return "March";
+                case 4:
+                    return "April";
+                case 5:
+                    return "May";
+                case 6:
+                    return "June";
+                case 7:
+                    return "July";
+                case 8:
+                    return "August";
+                case 9:
+                    return "September";
+                case 10:
+                    return "October";
+                case 11:
+                    return "November";
+                case 12:
+                    return "December";
+                default:
+                    return "January";
             }
         }
         private int CompareDays(DateTime left, DateTime right)

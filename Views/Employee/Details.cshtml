@@ -5,37 +5,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Welcome back, @Model.FirstName @Model.LastName </h1>
+<h1>Welcome back, @Model.FirstName @Model.LastName!</h1>
+<a asp-action="FillOutInformation" asp-route-EmployeeId="@Model.Id" class="btn btn-primary">Update Information</a>
 
+<h3>Today's date: @Model.WeekDay</h3>
+
+<h1>Completed Pickups</h1>
+@foreach (var customer in Model.Completed)
+{
+    <tr>
+        <td>
+            <div>
+                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+            </div>
+        </td>
+    </tr>
+}
+<h1>Remaining Requests</h1>
+@foreach (var customer in Model.NeedToCollect)
+{
+    <tr>
+        <td>
+            <div>
+                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}") <a class="btn btn-info" asp-action="CompletePickup" asp-route-CustomerId=@customer.Id>Pickup</a>
+            </div>
+        </td>
+    </tr>
+}
 <div>
-    <h4>Employee</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LoginEmail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LoginEmail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ZipCode)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ZipCode)
-        </dd>
-    </dl>
+
 </div>
 <div>
     <a asp-action="FillOutInformation" asp-route-EmployeeId="@Model.Id">Update Information</a>
