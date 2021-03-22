@@ -75,6 +75,7 @@ namespace TrashCollector.Controllers
                     c.WeeklyPickup = false;
                 }
             }
+            employee.SelectedDay = -1;
             // Remap to display string
             return View(employee);
         }
@@ -237,7 +238,7 @@ namespace TrashCollector.Controllers
         {
             string originalAddress = $"{customer.StreetAddress}, {customer.City}, {customer.State}";
             profile.FullAddress = originalAddress + " " + customer.ZipCode;
-            string formmattedFullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=AIzaSyAzvJERVyotGlq-Yz6h3CzCIJKfc5K5Zuo&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
+            string formmattedFullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=" + Secrets.GoogleMapsAPIKey + "&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
             profile.Longitude = 0;
             profile.Latitude = 0;
         }
