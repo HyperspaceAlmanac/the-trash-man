@@ -34,6 +34,8 @@ namespace TrashCollector.Controllers
             Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
             c.DayOfWeek = DayNumToWord(c.PickupDay);
             c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
+
+
             return View(c);
         }
 

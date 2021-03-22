@@ -48,6 +48,8 @@ namespace TrashCollector.Models
         public string TodayString { get; set; }
         [NotMapped]
         public bool WeeklyPickup { get; set; }
+        [NotMapped]
+        public int FeesThisMonth { get; set; }
 
     }
 }
