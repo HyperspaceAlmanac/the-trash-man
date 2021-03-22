@@ -43,6 +43,8 @@ namespace TrashCollector.Models
         [NotMapped]
         public List<OneTimePickup> oneTimePickups {get; set;}
         [NotMapped]
+        public List<CompletedPickup> completedPickups { get; set; }
+        [NotMapped]
         public string TodayString { get; set; }
         [NotMapped]
         public bool WeeklyPickup { get; set; }
