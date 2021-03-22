@@ -22,18 +22,25 @@ namespace TrashCollector.Data
                 .HasData(
                     new IdentityRole
                     {
+                        Id = "0f3f8561-ba6a-4530-b5e4-9e66425089de",
                         Name = "Admin",
-                        NormalizedName = "ADMIN"
+                        NormalizedName = "ADMIN",
+                        ConcurrencyStamp = "a0b6873b-bcfd-4880-8987-3a403620f5f2"
                     },
                     new IdentityRole
                     {
+                       Id = "ff2a00f0-9394-4ebf-9546-135cd2ab6500",
                         Name = "Customer",
-                        NormalizedName = "CUSTOMER"
+                        NormalizedName = "CUSTOMER",
+                        ConcurrencyStamp = "5d137252-b432-4cba-a5ec-6b1150addd1a"
+
                     },
                     new IdentityRole
                     {
+                        Id = "135fc814-e4c8-4423-b037-6b28a1eb96d0",
                         Name = "Employee",
-                        NormalizedName = "EMPLOYEE"
+                        NormalizedName = "EMPLOYEE",
+                        ConcurrencyStamp = "3a9c7601-e621-457d-8f50-7572109c09a7"
                     }
                 );
             builder.Entity<OneTimePickup>()
