@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TrashCollector.Data;
 using TrashCollector.Models;
+using TrashCollector.ViewModels;
 
 namespace TrashCollector.Controllers
 {
@@ -220,6 +221,26 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
+
+        public ActionResult CustomerProfile(int CustomerId, bool NeedsPickup)
+        {
+            Customer customer = _context.Customers.FirstOrDefault(c => c.Id == CustomerId);
+            CustomerLocation profile = new CustomerLocation();
+            profile.Name = customer.FirstName + " " + customer.LastName;
+            profile.NeedsPickup = NeedsPickup;
+            GetGeoLocation(customer, profile);
+            return View(profile);
+        }
+
+        private void GetGeoLocation(Customer customer, CustomerLocation profile)
+        {
+            string originalAddress = $"{customer.StreetAddress}, {customer.City}, {customer.State}";
+            profile.FullAddress = originalAddress + " " + customer.ZipCode;
+            string formmattedFullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=AIzaSyAzvJERVyotGlq-Yz6h3CzCIJKfc5K5Zuo&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
+            profile.Longitude = 0;
+            profile.Latitude = 0;
+        }
+
         public ActionResult MapsAPI()
         {
             return View();
