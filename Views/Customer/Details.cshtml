@@ -8,12 +8,12 @@
 <h1>Dashboard</h1>
 
 <div>
-    <h4>Customer</h4>
+    <h4>@(Model.FirstName + " " + Model.LastName)</h4>
     <hr />
     <div class="row">
         <div class="col-sm-12 col-md-6">
             <h2> Trash Collection Day: @Html.DisplayFor(model => model.DayOfWeek)</h2>
-            <h3>Total Charge This Month: @("$" + Model.FeesThisMonth + ".00")</h3>
+            <h3>Total Charges This Month: @("$" + Model.FeesThisMonth + ".00")</h3>
             @foreach (CompletedPickup pickup in Model.completedPickups)
             {
                 <p>
@@ -57,7 +57,7 @@
                 @Html.DisplayFor(model => model.ZipCode)
             </dd>
             <dt>
-                <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id class="btn btn-primary"">Update Information Or Change Collection Day</a>
+                <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id" class="btn btn-primary">Update Information Or Change Collection Day</a>
             </dt>
         </dl>
     </div>

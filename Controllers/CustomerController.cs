@@ -75,6 +75,12 @@ namespace TrashCollector.Controllers
         public ActionResult FillOutInformation(int CustomerId)
         {
             Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            if (customer == null)
+            {
+                // For when registration process is interrupted
+                string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            } 
             customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
             return View(customer);
         }

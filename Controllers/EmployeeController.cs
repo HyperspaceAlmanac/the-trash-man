@@ -185,6 +185,12 @@ namespace TrashCollector.Controllers
         public ActionResult FillOutInformation(int EmployeeId)
         {
             Employee employee = _context.Employees.Where(c => c.Id == EmployeeId).SingleOrDefault();
+            if (employee == null)
+            {
+                // For when registration is interrupted
+                string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            }
             return View(employee);
         }
 
