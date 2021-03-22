@@ -24,8 +24,12 @@ namespace TrashCollector.Controllers
         public ActionResult Index()
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int customerId = _context.Customers.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
-            return RedirectToAction(nameof(Details), new { CustomerInfo = customerId });
+            Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (!customer.CompletedRegistration) {
+                return RedirectToAction(nameof(FillOutInformation), new { CustomerInfo = customer.Id });
+            } else {
+                return RedirectToAction(nameof(Details), new { CustomerInfo = customer.Id });
+            }
         }
 
         // GET: CustomerController/Details/5
@@ -35,7 +39,24 @@ namespace TrashCollector.Controllers
             c.DayOfWeek = DayNumToWord(c.PickupDay);
             c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
 
-
+            DateTime today = DateTime.Today.Date;
+            c.completedPickups = _context.CompletedPickups.Where(p => p.CustomerId == CustomerInfo && p.Date.Month == today.Month && p.Date.Year == today.Year).ToList();
+            int totalCost = 0;
+            foreach (CompletedPickup pickup in c.completedPickups)
+            {
+                if (!pickup.Paid)
+                {
+                    if (pickup.OneTimePickup)
+                    {
+                        totalCost += 10;
+                    }
+                    else
+                    {
+                        totalCost += 5;
+                    }
+                }
+            }
+            c.FeesThisMonth = totalCost;
             return View(c);
         }
 
@@ -65,6 +86,7 @@ namespace TrashCollector.Controllers
         {
             try
             {
+                customer.CompletedRegistration = true;
                 _context.Customers.Update(customer);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));

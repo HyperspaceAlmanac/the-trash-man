@@ -54,7 +54,7 @@
             <td>
                 <div>
                     @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
-                    customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                    @(customer.FirstName + " " + customer.LastName + " on ") @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
                 </div>
             </td>
         </tr>

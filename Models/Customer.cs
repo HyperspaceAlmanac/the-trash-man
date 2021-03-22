@@ -35,6 +35,7 @@ namespace TrashCollector.Models
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM dd yyyy}")]
         [DataType(DataType.Date)]
         public DateTime? EndDate { get; set; }
+        public bool CompletedRegistration { get; set; }
 
         [NotMapped]
         public SelectList DayOptions { get; set; }

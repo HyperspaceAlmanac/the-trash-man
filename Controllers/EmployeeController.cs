@@ -24,8 +24,15 @@ namespace TrashCollector.Controllers
         public ActionResult Index()
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int employeeId = _context.Employees.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
-            return RedirectToAction(nameof(Details), new { EmployeeInfo = employeeId });
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (!employee.CompletedRegistration)
+            {
+                return RedirectToAction(nameof(FillOutInformation), new { EmployeeInfo = employee.Id });
+            }
+            else
+            {
+                return RedirectToAction(nameof(Details), new { EmployeeInfo = employee.Id });
+            }
         }
 
         // GET: EmployeeController/Details/5
@@ -53,7 +60,7 @@ namespace TrashCollector.Controllers
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
                                  !(CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
+                                 && (CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
@@ -110,7 +117,7 @@ namespace TrashCollector.Controllers
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
                                  !(CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
+                                 && (CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
@@ -188,6 +195,7 @@ namespace TrashCollector.Controllers
         {
             try
             {
+                employee.CompletedRegistration = true;
                 _context.Employees.Update(employee);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
