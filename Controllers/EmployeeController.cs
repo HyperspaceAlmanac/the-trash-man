@@ -64,13 +64,14 @@ namespace TrashCollector.Controllers
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
-                if (oneTimePickups.Contains(c.Id))
+                // Weekly Pickup has priority over one time if on same day
+                if (DayNumToWord(c.PickupDay) == dayOfWeekString)
                 {
-                    c.WeeklyPickup = false;
+                    c.WeeklyPickup = true;
                 }
                 else
                 {
-                    c.WeeklyPickup = true;
+                    c.WeeklyPickup = false;
                 }
             }
             // Remap to display string
@@ -94,10 +95,10 @@ namespace TrashCollector.Controllers
             // String WeekDay for Date and Day of week display
             string dayOfWeekString = DayNumToWord(currentDay.DayOfWeek);
             DateTime firstDayOfWeek = currentDay.AddDays(DayofWeekSubtractionOffset(currentDay.Date.DayOfWeek));
-            string fristDayOfWeekString = DayNumToWord(firstDayOfWeek.DayOfWeek);
+            string firstDayOfWeekString = DayNumToWord(firstDayOfWeek.DayOfWeek);
 
             employee.WeekDay = dayOfWeekString + ", " + MonthString(currentDay.Month) + $" {currentDay.Day}, {currentDay.Year}";
-            employee.WeekOf = fristDayOfWeekString + ", " + MonthString(firstDayOfWeek.Month) + $" {firstDayOfWeek.Day}, {firstDayOfWeek.Year}";
+            employee.WeekOf = firstDayOfWeekString + ", " + MonthString(firstDayOfWeek.Month) + $" {firstDayOfWeek.Day}, {firstDayOfWeek.Year}";
             employee.Completed = new List<Customer>();
             employee.NeedToCollect = new List<Customer>();
             employee.SelectedDay = offset;
@@ -121,13 +122,14 @@ namespace TrashCollector.Controllers
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
-                if (oneTimePickups.Contains(c.Id))
+                // Weekly schedule pickup has priority over one time schedule
+                if (DayNumToWord(c.PickupDay) == DayNumToWord(today.DayOfWeek))
                 {
-                    c.WeeklyPickup = false;
+                    c.WeeklyPickup = true;
                 }
                 else
                 {
-                    c.WeeklyPickup = true;
+                    c.WeeklyPickup = false;
                 }
             }
 
