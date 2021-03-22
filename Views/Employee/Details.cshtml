@@ -7,7 +7,7 @@
 
 <h1>Welcome back, @Model.FirstName @Model.LastName!</h1>
 <a asp-action="FillOutInformation" asp-route-EmployeeId="@Model.Id" class="btn btn-primary">Update Information</a>
-<a class="btn btn-primary" asp-action="WeeklyPlanner" asp-route-offset=0>Weekly Planner</a>
+<a class="btn btn-primary" asp-action="WeeklyPlanner" asp-route-offset=-1>Weekly Planner</a>
 
 <h3>Today's date: @Model.WeekDay</h3>
 

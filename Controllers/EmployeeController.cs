@@ -89,12 +89,19 @@ namespace TrashCollector.Controllers
                 today = employee.SimulatedDay.Value;
             }
 
-            DateTime currentDay = today.AddDays(DayofWeekSubtractionOffset(today.Date.DayOfWeek));
-            currentDay = currentDay.AddDays(offset);
-
+            DateTime currentDay = today.AddDays(-DayofWeekOffset(today.Date.DayOfWeek));
+            if (offset == -1)
+            {
+                currentDay = today;
+                offset = DayofWeekOffset(today.Date.DayOfWeek);
+            }
+            else
+            {
+                currentDay = currentDay.AddDays(offset);
+            }
             // String WeekDay for Date and Day of week display
             string dayOfWeekString = DayNumToWord(currentDay.DayOfWeek);
-            DateTime firstDayOfWeek = currentDay.AddDays(DayofWeekSubtractionOffset(currentDay.Date.DayOfWeek));
+            DateTime firstDayOfWeek = currentDay.AddDays(-DayofWeekOffset(currentDay.Date.DayOfWeek));
             string firstDayOfWeekString = DayNumToWord(firstDayOfWeek.DayOfWeek);
 
             employee.WeekDay = dayOfWeekString + ", " + MonthString(currentDay.Month) + $" {currentDay.Day}, {currentDay.Year}";
@@ -235,24 +242,24 @@ namespace TrashCollector.Controllers
                     return "Monday";
             }
         }
-        private int DayofWeekSubtractionOffset(DayOfWeek val)
+        private int DayofWeekOffset(DayOfWeek val)
         {
             switch (val)
             {
                 case DayOfWeek.Monday:
                     return 0;
                 case DayOfWeek.Tuesday:
-                    return -1;
+                    return 1;
                 case DayOfWeek.Wednesday:
-                    return -2;
+                    return 2;
                 case DayOfWeek.Thursday:
-                    return -3;
+                    return 3;
                 case DayOfWeek.Friday:
-                    return -4;
+                    return 4;
                 case DayOfWeek.Saturday:
-                    return -5;
+                    return 5;
                 case DayOfWeek.Sunday:
-                    return -6;
+                    return 6;
                 default:
                     return 0;
             }
