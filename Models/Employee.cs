@@ -30,5 +30,7 @@ namespace TrashCollector.Models
         public string WeekDay { get; set; }
         [NotMapped]
         public int SelectedDay { get; set; }
+        [NotMapped]
+        public string WeekOf { get; set; }
     }
 }

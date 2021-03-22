@@ -1,0 +1,67 @@
+﻿@model TrashCollector.Models.Employee
+
+@{
+    ViewData["Title"] = "WeeklyPlanner";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>WeeklyPlanner</h1>
+<h4>Week of @Model.WeekOf</h4>
+<div>
+    @if (Model.SelectedDay > 6)
+    {
+        <a class="btn btn-info" asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - 7)>Previous Week</a>
+    }
+    else
+    {
+        <a class="btn btn-secondary">Previous Week</a>
+    }
+    Schedule for @(Model.WeekDay):
+    <a class="btn btn-info" asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay + 7)>Next Week</a>
+</div>
+<br />
+<div class="row">
+    <a class=@(Model.SelectedDay % 7 == 0 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7))>Monday</a>
+    <a class=@(Model.SelectedDay % 7 == 1 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 1))>Tuesday</a>
+    <a class=@(Model.SelectedDay % 7 == 2 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 2))>Wednesday</a>
+    <a class=@(Model.SelectedDay % 7 == 3 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 3))>Thursday</a>
+    <a class=@(Model.SelectedDay % 7 == 4 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 4))>Friday</a>
+    <a class=@(Model.SelectedDay % 7 == 5 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 5))>Saturday</a>
+    <a class=@(Model.SelectedDay % 7 == 6 ? "btn btn-secondary col-1" : "btn btn-info col-1") asp-action="WeeklyPlanner" asp-route-offset=@(Model.SelectedDay - (Model.SelectedDay % 7 - 6))>Sunday</a>
+</div>
+<br />
+@if (Model.Completed.Count > 0)
+{
+    <h1>Completed Pickups</h1>
+    foreach (var customer in Model.Completed)
+    {
+        <tr>
+            <td>
+                <div>
+                    Request completed for @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                </div>
+            </td>
+        </tr>
+    }
+}
+
+@if (Model.NeedToCollect.Count > 0)
+{
+    <h1>Scheduled Requests</h1>
+    foreach (var customer in Model.NeedToCollect)
+    {
+        <tr>
+            <td>
+                <div>
+                    @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
+                    customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <h1>There are no scheduled requests today</h1>
+}
+<a class="btn btn-primary" asp-action="Index">Main Page</a>

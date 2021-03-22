@@ -41,7 +41,7 @@ namespace TrashCollector.Controllers
             dayOfWeekString = DayNumToWord(today.DayOfWeek);
             employee.WeekDay = dayOfWeekString + ", " + MonthString(today.Month) + $" {today.Day}, {today.Year}";
             
-            // Set of completed Pickups
+            // Set of completed Pickups on this day
             HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                 && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
@@ -61,9 +61,71 @@ namespace TrashCollector.Controllers
                 {
                     c.WeeklyPickup = false;
                 }
+                else
+                {
+                    c.WeeklyPickup = true;
+                }
             }
             // Remap to display string
             return View(employee);
+        }
+
+        public ActionResult WeeklyPlanner(int offset)
+        {
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            DateTime today = DateTime.Today;
+
+            if (employee.UseSimulatedDay)
+            {
+                today = employee.SimulatedDay.Value;
+            }
+
+            DateTime currentDay = today.AddDays(DayofWeekSubtractionOffset(today.Date.DayOfWeek));
+            currentDay = currentDay.AddDays(offset);
+
+            // String WeekDay for Date and Day of week display
+            string dayOfWeekString = DayNumToWord(currentDay.DayOfWeek);
+            DateTime firstDayOfWeek = currentDay.AddDays(DayofWeekSubtractionOffset(currentDay.Date.DayOfWeek));
+            string fristDayOfWeekString = DayNumToWord(firstDayOfWeek.DayOfWeek);
+
+            employee.WeekDay = dayOfWeekString + ", " + MonthString(currentDay.Month) + $" {currentDay.Day}, {currentDay.Year}";
+            employee.WeekOf = fristDayOfWeekString + ", " + MonthString(firstDayOfWeek.Month) + $" {firstDayOfWeek.Day}, {firstDayOfWeek.Year}";
+            employee.Completed = new List<Customer>();
+            employee.NeedToCollect = new List<Customer>();
+            employee.SelectedDay = offset;
+
+            // Logic for filling out the two tables
+
+            today = currentDay;
+            // Set of completed Pickups on this day
+            HashSet<int> alreadyPickedUp = new HashSet<int>(_context.CompletedPickups.Where(c => c.Date.Year == today.Year
+               && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
+            employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+            HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups
+                .Where(p => p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
+            // Find all customers in area with trash collection today
+            employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode).ToList()
+                                 .Where(c => DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
+                                 .Where(c => !alreadyPickedUp.Contains(c.Id))
+                                 .Where(c => c.StartDate == null ||
+                                 !(CompareDays(c.StartDate.Value, today.Date) >= 0)
+                                 && (CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
+            // Separate weekly and one time pickups here
+            foreach (var c in employee.NeedToCollect)
+            {
+                if (oneTimePickups.Contains(c.Id))
+                {
+                    c.WeeklyPickup = false;
+                }
+                else
+                {
+                    c.WeeklyPickup = true;
+                }
+            }
+
+            return View(employee);
+
         }
         public ActionResult CompletePickup(int CustomerId, int EmployeeId, bool weeklyPickup)
         {
@@ -157,6 +219,28 @@ namespace TrashCollector.Controllers
                     return "Monday";
             }
         }
+        private int DayofWeekSubtractionOffset(DayOfWeek val)
+        {
+            switch (val)
+            {
+                case DayOfWeek.Monday:
+                    return 0;
+                case DayOfWeek.Tuesday:
+                    return -1;
+                case DayOfWeek.Wednesday:
+                    return -2;
+                case DayOfWeek.Thursday:
+                    return -3;
+                case DayOfWeek.Friday:
+                    return -4;
+                case DayOfWeek.Saturday:
+                    return -5;
+                case DayOfWeek.Sunday:
+                    return -6;
+                default:
+                    return 0;
+            }
+        }
         private string DayNumToWord(int val)
         {
             switch (val)
@@ -238,6 +322,14 @@ namespace TrashCollector.Controllers
                 return -1;
             }
             return 0;
+        }
+        private string DateToString(DateTime dateValue)
+        {
+            int year = dateValue.Date.Year;
+            string month = (dateValue.Month > 9 ? "" : "0") + dateValue.Month.ToString();
+            string day = (dateValue.Day > 9 ? "" : "0") + dateValue.Day.ToString();
+            string date = $"{year}-{month}-{day}";
+            return date;
         }
         private SelectList GenerateDaysSelectList(int day)
         {

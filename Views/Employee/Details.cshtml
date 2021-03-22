@@ -16,7 +16,7 @@
     <tr>
         <td>
             <div>
-                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                Request completed for @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
             </div>
         </td>
     </tr>
@@ -27,15 +27,11 @@
     <tr>
         <td>
             <div>
-                Pickup scheduled for @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
-                <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Pickup</a>
+                @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for") 
+                @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
             </div>
         </td>
     </tr>
 }
-<div>
-
-</div>
-<div>
-    <a asp-action="FillOutInformation" asp-route-EmployeeId="@Model.Id">Update Information</a>
-</div>
+<a class="btn btn-primary" asp-action="WeeklyPlanner" asp-route-offset=0>Weekly Planner</a>
