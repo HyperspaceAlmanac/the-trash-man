@@ -11,20 +11,50 @@
     <h4>CustomerLocation</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.FullAddress)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.FullAddress)
         </dd>
     </dl>
 </div>
+@if (!Model.GeoLocationSuccess)
+{
+    <div>Unable to Find location on Google Maps</div>
+}
+else
+{
+
+<div id="pickupMap" class="google-map"></div>
+
+<script>
+    function myMap() {
+        const latAndLng = { lat: @Model.Latitude, lng: @Model.Longitude};
+        var mapProp = {
+            center: latAndLng,
+            zoom: 15,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("pickupMap"), mapProp);
+
+        var marker = new google.maps.Marker({
+            position: latAndLng,
+            map: map,
+            title: '@(Model.FullAddress)',
+            visible: true
+        });
+    }
+</script>
+
+<script src=@("https://maps.googleapis.com/maps/api/js?key=" + TrashCollector.Controllers.Secrets.GoogleMapsAPIKey + "&callback=myMap")></script>
+}
 <div>
     @if (Model.Offset > -1)
     {

@@ -13,5 +13,6 @@ namespace TrashCollector.ViewModels
         public double Latitude { get; set; }
         public bool NeedsPickup { get; set; }
         public int Offset { get; set; }
+        public bool GeoLocationSuccess { get; set; }
     }
 }

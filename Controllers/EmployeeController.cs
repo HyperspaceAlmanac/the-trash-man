@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TrashCollector.Data;
 using TrashCollector.Models;
 using TrashCollector.ViewModels;
@@ -230,17 +232,46 @@ namespace TrashCollector.Controllers
             profile.Name = customer.FirstName + " " + customer.LastName;
             profile.NeedsPickup = NeedsPickup;
             profile.Offset = Offset;
-            GetGeoLocation(customer, profile);
+            profile.GeoLocationSuccess = GetGeoLocation(customer, profile);
             return View(profile);
         }
 
-        private void GetGeoLocation(Customer customer, CustomerLocation profile)
+        private bool GetGeoLocation(Customer customer, CustomerLocation profile)
         {
+            // Using Code from https://stackoverflow.com/questions/16274508/how-to-call-google-geocoding-service-from-c-sharp-code
+            // Using the method in the answer for sending GeoLocation request, and then converting response into XML and reading it
             string originalAddress = $"{customer.StreetAddress}, {customer.City}, {customer.State}";
             profile.FullAddress = originalAddress + " " + customer.ZipCode;
-            string formmattedFullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=" + Secrets.GoogleMapsAPIKey + "&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
+            string fullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=" + Secrets.GeoLocationKey + "&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
             profile.Longitude = 0;
             profile.Latitude = 0;
+            WebRequest request;
+            WebResponse response;
+            try
+            {
+                request = WebRequest.Create(fullURI);
+                response = request.GetResponse();
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+            XDocument xdoc = XDocument.Load(response.GetResponseStream());
+            XElement status = xdoc.Element("GeocodeResponse").Element("status");
+            if (status.Value != "OK")
+            {
+                return false;
+            }
+            XElement location = xdoc.Element("GeocodeResponse").Element("result").Element("geometry").Element("location");
+            try
+            {
+                profile.Longitude = Convert.ToDouble(location.Element("lng").Value);
+                profile.Latitude = Convert.ToDouble(location.Element("lat").Value);
+            } catch (FormatException) {
+                return false;
+            }
+            return true;
+
         }
 
         public ActionResult MapsAPI()
