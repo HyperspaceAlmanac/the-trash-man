@@ -222,12 +222,13 @@ namespace TrashCollector.Controllers
             }
         }
 
-        public ActionResult CustomerProfile(int CustomerId, bool NeedsPickup)
+        public ActionResult CustomerProfile(int CustomerId, bool NeedsPickup, int Offset)
         {
             Customer customer = _context.Customers.FirstOrDefault(c => c.Id == CustomerId);
             CustomerLocation profile = new CustomerLocation();
             profile.Name = customer.FirstName + " " + customer.LastName;
             profile.NeedsPickup = NeedsPickup;
+            profile.Offset = Offset;
             GetGeoLocation(customer, profile);
             return View(profile);
         }

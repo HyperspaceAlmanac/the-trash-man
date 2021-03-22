@@ -19,6 +19,7 @@
         <td>
             <div>
                 Request completed for @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="false" asp-route-Offset="-1">ViewProfile</a>
             </div>
         </td>
     </tr>
@@ -32,6 +33,7 @@
                 @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
                 @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
                 <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
+                <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
             </div>
         </td>
     </tr>
