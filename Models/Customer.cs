@@ -28,6 +28,9 @@ namespace TrashCollector.Models
         [ForeignKey("IdentityUser")]
         public string IdentityUserId { get; set; }
         public IdentityUser IdentityUser { get; set; }
+        public double Longitude { get; set; }
+        public double Latitude { get; set; }
+        public bool AddressSaved { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM dd yyyy}")]
         [DataType(DataType.Date)]

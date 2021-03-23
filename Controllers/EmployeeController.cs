@@ -55,6 +55,10 @@ namespace TrashCollector.Controllers
             HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                 && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+
+            employee.profiles = new List<CustomerLocation>();
+            // Populate map
+
             HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups
                 .Where(p=> p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
             // Find all customers in area with trash collection today

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using TrashCollector.ViewModels;
 
 namespace TrashCollector.Models
 {
@@ -33,5 +34,7 @@ namespace TrashCollector.Models
         public int SelectedDay { get; set; }
         [NotMapped]
         public string WeekOf { get; set; }
+        [NotMapped]
+        public List<CustomerLocation> profiles { get; set; }
     }
 }
