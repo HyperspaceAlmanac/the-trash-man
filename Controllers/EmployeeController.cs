@@ -330,10 +330,6 @@ namespace TrashCollector.Controllers
 
         }
 
-        public ActionResult MapsAPI()
-        {
-            return View();
-        }
         private string DayNumToWord(DayOfWeek val)
         {
             switch (val)
