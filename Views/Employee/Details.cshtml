@@ -56,7 +56,7 @@
     <div id="allCustomersMap" class="google-map"></div>
 
     <script>
-    document.getElementById('display-all-customers').onclick = function myMap() { {
+        document.getElementById('display-all-customers').onclick = function myMap() {
         const latAndLng = @Html.Raw("{ lat: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Latitude + ", lng: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Longitude + " };");
         var mapProp = {
             center: latAndLng,

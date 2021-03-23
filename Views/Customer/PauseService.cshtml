@@ -14,7 +14,6 @@
         <form asp-action="PauseService">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="IdentityUserId" />
             <input type="hidden" asp-for="LoginEmail" />
             <input type="hidden" asp-for="FirstName" />
@@ -24,16 +23,21 @@
             <input type="hidden" asp-for="State" />
             <input type="hidden" asp-for="ZipCode" />
             <input type="hidden" asp-for="PickupDay" />
-            <input type="hidden" asp-for="IdentityUserId" />
-            
+            <input type="hidden" asp-for="Longitude" />
+            <input type="hidden" asp-for="Latitude" />
+            <input type="hidden" asp-for="AddressSaved" />
+            <input type="hidden" asp-for="CompletedRegistration" />
+
+
+
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>
-                <input type= "date" asp-for="StartDate" class="form-control" required min=@Model.TodayString/>
+                <input type="date" asp-for="StartDate" class="form-control" required min=@Model.TodayString />
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="EndDate" class="control-label"></label>
-                <input type = "date" asp-for="EndDate" class="form-control" required min=@Model.TodayString/>
+                <input type="date" asp-for="EndDate" class="form-control" required min=@Model.TodayString />
                 <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
