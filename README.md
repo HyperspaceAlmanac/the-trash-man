@@ -5,7 +5,7 @@ Trash collector project that is not garbage collection implementation but an act
 
 This is a project for educational purposes only
 
-# This project uses Google Maps API and Google Geocode API to retrieve longitude and latitude to display markes on map
+# This project uses Google Maps API and Google Geocode API to retrieve longitude and latitude to display markers on map
 
 # Notable code snippets taken from somewhere else:
 
