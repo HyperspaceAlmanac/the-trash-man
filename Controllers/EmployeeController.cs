@@ -56,8 +56,16 @@ namespace TrashCollector.Controllers
                 && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
 
-            employee.profiles = new List<CustomerLocation>();
+            employee.Profiles = new List<CustomerLocation>();
             // Populate map
+            CustomerLocation tempProfile;
+            foreach (Customer c in employee.Completed)
+            {
+                tempProfile = new CustomerLocation();
+                tempProfile.NeedsPickup = false;
+                SetProfile(c, tempProfile);
+                employee.Profiles.Add(tempProfile);                
+            }
 
             HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups
                 .Where(p=> p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
@@ -80,6 +88,10 @@ namespace TrashCollector.Controllers
                 {
                     c.WeeklyPickup = false;
                 }
+                tempProfile = new CustomerLocation();
+                tempProfile.NeedsPickup = true;
+                SetProfile(c, tempProfile);
+                employee.Profiles.Add(tempProfile);
             }
             employee.SelectedDay = -1;
             // Remap to display string
@@ -125,6 +137,18 @@ namespace TrashCollector.Controllers
             HashSet<int> alreadyPickedUp = new HashSet<int>(_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+
+            employee.Profiles = new List<CustomerLocation>();
+            // Populate map
+            CustomerLocation tempProfile;
+            foreach (Customer c in employee.Completed)
+            {
+                tempProfile = new CustomerLocation();
+                tempProfile.NeedsPickup = false;
+                SetProfile(c, tempProfile);
+                employee.Profiles.Add(tempProfile);
+            }
+
             HashSet<int> oneTimePickups = new HashSet<int>(_context.OneTimePickups
                 .Where(p => p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
             // Find all customers in area with trash collection today
@@ -146,6 +170,10 @@ namespace TrashCollector.Controllers
                 {
                     c.WeeklyPickup = false;
                 }
+                tempProfile = new CustomerLocation();
+                tempProfile.NeedsPickup = true;
+                SetProfile(c, tempProfile);
+                employee.Profiles.Add(tempProfile);
             }
 
             return View(employee);
@@ -233,11 +261,36 @@ namespace TrashCollector.Controllers
         {
             Customer customer = _context.Customers.FirstOrDefault(c => c.Id == CustomerId);
             CustomerLocation profile = new CustomerLocation();
-            profile.Name = customer.FirstName + " " + customer.LastName;
-            profile.NeedsPickup = NeedsPickup;
             profile.Offset = Offset;
-            profile.GeoLocationSuccess = GetGeoLocation(customer, profile);
+            profile.NeedsPickup = NeedsPickup;
+            SetProfile(customer, profile);
+
             return View(profile);
+        }
+        private void SetProfile(Customer customer, CustomerLocation profile)
+        {
+            profile.Name = customer.FirstName + " " + customer.LastName;
+
+            profile.FullAddress = $"{customer.StreetAddress}, {customer.City}, {customer.State} {customer.ZipCode}";
+            if (customer.AddressSaved)
+            {
+                profile.GeoLocationSuccess = true;
+                profile.Longitude = customer.Longitude;
+                profile.Latitude = customer.Latitude;
+            }
+            else
+            {
+                profile.GeoLocationSuccess = GetGeoLocation(customer, profile);
+                if (profile.GeoLocationSuccess)
+                {
+                    // Only using and saving geoLocation results for use with Google Maps API
+                    customer.AddressSaved = true;
+                    customer.Longitude = profile.Longitude;
+                    customer.Latitude = profile.Latitude;
+                    _context.Update(customer);
+                    _context.SaveChanges();
+                }
+            }
         }
 
         private bool GetGeoLocation(Customer customer, CustomerLocation profile)
@@ -245,7 +298,6 @@ namespace TrashCollector.Controllers
             // Using Code from https://stackoverflow.com/questions/16274508/how-to-call-google-geocoding-service-from-c-sharp-code
             // Using the method in the answer for sending GeoLocation request, and then converting response into XML and reading it
             string originalAddress = $"{customer.StreetAddress}, {customer.City}, {customer.State}";
-            profile.FullAddress = originalAddress + " " + customer.ZipCode;
             string fullURI = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key=" + Secrets.GeoLocationKey + "&address={0}&sensor=false", Uri.EscapeDataString(originalAddress));
             profile.Longitude = 0;
             profile.Latitude = 0;

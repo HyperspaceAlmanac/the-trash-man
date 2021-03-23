@@ -1,4 +1,5 @@
-﻿@model TrashCollector.Models.Employee
+﻿@using TrashCollector.ViewModels; 
+@model TrashCollector.Models.Employee
 
 @{
     ViewData["Title"] = "Details";
@@ -38,18 +39,35 @@
         </td>
     </tr>
 }
-<input type="button" class="btn btn-primary" value="Display on Map" id="show-map" />
-<div id="pickupMap" class="google-map"></div>
+<input type="button" class="btn btn-primary" value="Display Customers on Map" id="show-map" />
+@foreach (CustomerLocation profile in Model.Profiles)
+{
+    if (!profile.GeoLocationSuccess)
+    {
+        <div>Unable to find @profile.FullAddress on the map </div>
+    }
+}
+@if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0) {
+<div id="allCustomersMap" class="google-map"></div>
 
 <script>
-    document.getElementById('show-map').onclick = function myMap() {
+    function myMap() {
+        const latAndLng = { lat: @Model.Latitude, lng: @Model.Longitude};
         var mapProp = {
-            center: new google.maps.LatLng(51.508742, -0.120850),
-            zoom: 5,
+            center: latAndLng,
+            zoom: 15,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        var map = new google.maps.Map(document.getElementById("pickupMap"), mapProp);
+        var map = new google.maps.Map(document.getElementById("allCustomersMap"), mapProp);
+
+        var marker = new google.maps.Marker({
+            position: latAndLng,
+            map: map,
+            title: '@(Model.FullAddress)',
+            visible: true
+        });
     }
 </script>
 
 <script src= @("https://maps.googleapis.com/maps/api/js?key=" + TrashCollector.Controllers.Secrets.GoogleMapsAPIKey + "&callback=myMap")></script>
-
+}

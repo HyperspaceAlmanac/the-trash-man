@@ -1,4 +1,5 @@
-﻿@model TrashCollector.Models.Employee
+﻿@using TrashCollector.ViewModels;
+@model TrashCollector.Models.Employee
 
 @{
     ViewData["Title"] = "WeeklyPlanner";
@@ -65,5 +66,31 @@
 else
 {
     <h1>There are no scheduled requests today</h1>
+}
+
+@if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0)
+{
+    <div id="allCustomersMap" class="google-map"></div>
+
+    <script>
+    function myMap() {
+        const latAndLng = { lat: @Model.Latitude, lng: @Model.Longitude};
+        var mapProp = {
+            center: latAndLng,
+            zoom: 15,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("allCustomersMap"), mapProp);
+
+        var marker = new google.maps.Marker({
+            position: latAndLng,
+            map: map,
+            title: '@(Model.FullAddress)',
+            visible: true
+        });
+    }
+    </script>
+
+    <script src=@("https://maps.googleapis.com/maps/api/js?key=" + TrashCollector.Controllers.Secrets.GoogleMapsAPIKey + "&callback=myMap")></script>
 }
 <a class="btn btn-primary" asp-action="Index">Main Page</a>

@@ -93,6 +93,7 @@ namespace TrashCollector.Controllers
             try
             {
                 customer.CompletedRegistration = true;
+                customer.AddressSaved = false; // Invalidate saved Longitude and Latitude on information update
                 _context.Customers.Update(customer);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
