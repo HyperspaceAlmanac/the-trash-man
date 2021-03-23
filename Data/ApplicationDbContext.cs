@@ -51,6 +51,7 @@ namespace TrashCollector.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<OneTimePickup> OneTimePickups { get; set; }
         public DbSet<CompletedPickup> CompletedPickups { get; set; }
+        public DbSet<PaymentRequest> PaymentRequests { get; set; }
 
     }
 }

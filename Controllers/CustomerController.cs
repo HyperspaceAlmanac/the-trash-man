@@ -90,15 +90,32 @@ namespace TrashCollector.Controllers
                     },
                 },
                 Mode = "payment",
-                SuccessUrl = "https://localhost:" + port + "/Customer/Success/",
-                CancelUrl = "https://localhost:" + port + "/Customer/Cancel/"
+                SuccessUrl = "https://localhost:" + port + "/Customer/Success?session_id={CHECKOUT_SESSION_ID}",
+                CancelUrl = "https://localhost:" + port + "/Customer/Index"
 
             };
 
             var service = new SessionService();
             Session session = service.Create(options);
-            
+
+            // Now update the database
+            PaymentRequest request;
+            foreach (int id in chargedPickups)
+            {
+                request = new PaymentRequest();
+                request.SessionID = session.Id;
+                request.PickupId = id;
+                _context.Add(request);
+                _context.SaveChanges();
+            }
+
             return Json(new { id = session.Id });
+        }
+        public ActionResult Success(string session_id)
+        {
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            return View();
         }
 
 

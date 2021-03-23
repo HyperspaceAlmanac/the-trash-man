@@ -22,6 +22,8 @@
                     @("$" + (pickup.OneTimePickup ? "10" : "5") + ".00")
                 </p>
             }
+            @if (Model.FeesThisMonth > 0)
+            {
             <button id="checkout-button" class="btn-primary">Make Payment</button>
             <script type="text/javascript">
                 var stripe = Stripe('pk_test_51IYBRaIA0hLVSbphflOwHb6VZqwN4at3SyOb9QtTK7i8FwXeBp7OKETjTskQsYDEAZxAuQqRzbynz0ZOjWk5U6sB00h30v7vc4');
@@ -47,6 +49,7 @@
                         });
                 });
             </script>
+            }
 
         </div>
         <dl class="col-sm-12 col-md-6">
