@@ -1,4 +1,4 @@
-﻿@using TrashCollector.ViewModels; 
+﻿@using TrashCollector.ViewModels;
 @model TrashCollector.Models.Employee
 
 @{
@@ -39,7 +39,7 @@
         </td>
     </tr>
 }
-<input type="button" class="btn btn-primary" value="Display Customers on Map" id="show-map" />
+
 @foreach (CustomerLocation profile in Model.Profiles)
 {
     if (!profile.GeoLocationSuccess)
@@ -47,11 +47,13 @@
         <div>Unable to find @profile.FullAddress on the map </div>
     }
 }
-@if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0) {
-<div id="allCustomersMap" class="google-map"></div>
+@if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0)
+{
+    <input type="button" class="btn btn-primary" value="Display Customers on Map" id="display-all-customers" />
+    <div id="allCustomersMap" class="google-map"></div>
 
-<script>
-    function myMap() {
+    <script>
+    document.getElementById('display-all-customers').onclick = function myMap() { {
         const latAndLng = @Html.Raw("{ lat: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Latitude + ", lng: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Longitude + " };");
         var mapProp = {
             center: latAndLng,
@@ -90,13 +92,13 @@
                 map: map,
                 title: description,
                 icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
                 },
                 visible: true
              });
          }
     }
-</script>
+    </script>
 
-<script src= @("https://maps.googleapis.com/maps/api/js?key=" + TrashCollector.Controllers.Secrets.GoogleMapsAPIKey + "&callback=myMap")></script>
+    <script src=@("https://maps.googleapis.com/maps/api/js?key=" + TrashCollector.Controllers.Secrets.GoogleMapsAPIKey + "&callback=myMap")></script>
 }

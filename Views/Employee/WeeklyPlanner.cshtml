@@ -68,13 +68,13 @@ else
     <h1>There are no scheduled requests today</h1>
 }
 
-<input type="button" class="btn btn-primary" value="Display Customers on Map" id="show-map" />
 @if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0)
 {
+    <input type="button" class="btn btn-primary" value="Display Customers on Map" id="show-map" />
     <div id="allCustomersMap" class="google-map"></div>
 
     <script>
-    function myMap() {
+        document.getElementById('show-map').onclick =function myMap() {
         const latAndLng = @Html.Raw("{ lat: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Latitude + ", lng: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Longitude + " };");
         var mapProp = {
             center: latAndLng,
@@ -102,7 +102,7 @@ else
                 map: map,
                 title: description,
                 icon: {
-                        url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
                 },
                 visible: true
             });
@@ -113,7 +113,7 @@ else
                 map: map,
                 title: description,
                 icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
                 },
                 visible: true
              });
