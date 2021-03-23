@@ -194,7 +194,14 @@ namespace TrashCollector.Controllers
             try
             {
                 customer.CompletedRegistration = true;
-                customer.AddressSaved = false; // Invalidate saved Longitude and Latitude on information update
+                Models.Customer originalRow = _context.Customers.Where(c => c.Id == customer.Id).FirstOrDefault();
+                if (originalRow.StreetAddress != customer.StreetAddress
+                    || originalRow.ZipCode != customer.ZipCode
+                    || originalRow.State != customer.State
+                    || originalRow.City != customer.City)
+                {
+                    customer.AddressSaved = false; // Invalidate saved Longitude and Latitude if information changed
+                }
                 _context.Customers.Update(customer);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
