@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script src="https://js.stripe.com/v3/"></script>
 <h1>Dashboard</h1>
 
 <div>
@@ -21,6 +22,32 @@
                     @("$" + (pickup.OneTimePickup ? "10" : "5") + ".00")
                 </p>
             }
+            <button id="checkout-button" class="btn-primary">Make Payment</button>
+            <script type="text/javascript">
+                var stripe = Stripe('pk_test_51IYBRaIA0hLVSbphflOwHb6VZqwN4at3SyOb9QtTK7i8FwXeBp7OKETjTskQsYDEAZxAuQqRzbynz0ZOjWk5U6sB00h30v7vc4');
+                var checkoutButton = document.getElementById('checkout-button');
+
+                checkoutButton.addEventListener('click', function () {
+                    fetch('/create-checkout-session', {
+                        method: 'POST',
+                    })
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (session) {
+                            return stripe.redirectToCheckout({ sessionId: session.id });
+                        })
+                        .then(function (result) {
+                            if (result.error) {
+                                alert(result.error.message);
+                            }
+                        })
+                        .catch(function (error) {
+                            console.error('Error:', error);
+                        });
+                });
+            </script>
+
         </div>
         <dl class="col-sm-12 col-md-6">
             <dt>
@@ -88,3 +115,4 @@
 <div>
     <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id" class="btn btn-primary">One Time Pickup</a>
 </div>
+

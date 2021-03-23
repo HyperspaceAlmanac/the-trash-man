@@ -9,6 +9,9 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TrashCollector.Data;
 using TrashCollector.Models;
+using Stripe;
+using Stripe.Checkout;
+using System.Web;
 
 namespace TrashCollector.Controllers
 {
@@ -19,12 +22,14 @@ namespace TrashCollector.Controllers
         public CustomerController(ApplicationDbContext context)
         {
             _context = context;
+            StripeConfiguration.ApiKey = Secrets.StripeSecretKey;
+
         }
         // GET: CustomerController
         public ActionResult Index()
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
             if (!customer.CompletedRegistration) {
                 return RedirectToAction(nameof(FillOutInformation), new { CustomerInfo = customer.Id });
             } else {
@@ -32,10 +37,75 @@ namespace TrashCollector.Controllers
             }
         }
 
+        [HttpPost("create-checkout-session")]
+        public ActionResult CreateCheckoutSession()
+        {
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            DateTime today = DateTime.Today.Date;
+
+            var pickupsThisMonth = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id && p.Date.Month == today.Month && p.Date.Year == today.Year);
+            int totalCost = 0;
+            int port = this.HttpContext.Connection.LocalPort;
+
+            // Get port
+            List<int> chargedPickups = new List<int>();
+            foreach (CompletedPickup pickup in pickupsThisMonth)
+            {
+                if (!pickup.Paid)
+                {
+                    if (pickup.OneTimePickup)
+                    {
+                        totalCost += 10;
+                    }
+                    else
+                    {
+                        totalCost += 5;
+                    }
+                    chargedPickups.Add(pickup.Id);
+                }
+            }
+
+            var options = new SessionCreateOptions
+            {
+                CustomerEmail = customer.LoginEmail,
+                PaymentMethodTypes = new List<string>
+                {
+                    "card",
+                },
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = totalCost * 100,
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "Trash Collection Service Payment",
+                            },
+                        },
+                        Quantity = 1,
+                    },
+                },
+                Mode = "payment",
+                SuccessUrl = "https://localhost:" + port + "/Customer/Success/",
+                CancelUrl = "https://localhost:" + port + "/Customer/Cancel/"
+
+            };
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            
+            return Json(new { id = session.Id });
+        }
+
+
         // GET: CustomerController/Details/5
         public ActionResult Details(int CustomerInfo)
         {
-            Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
+            Models.Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
             c.DayOfWeek = DayNumToWord(c.PickupDay);
             c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
 
@@ -61,7 +131,7 @@ namespace TrashCollector.Controllers
         }
 
         // GET: CustomerController/RegisterAccount
-        public ActionResult RegisterAccount(Customer customer)
+        public ActionResult RegisterAccount(Models.Customer customer)
         {
             _context.Customers.Add(customer);
             _context.SaveChanges();
@@ -74,7 +144,7 @@ namespace TrashCollector.Controllers
 
         public ActionResult FillOutInformation(int CustomerId)
         {
-            Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
             if (customer == null)
             {
                 // For when registration process is interrupted
@@ -88,7 +158,7 @@ namespace TrashCollector.Controllers
         // POST: CustomerController/RegisterAccount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult FillOutInformation(Customer customer)
+        public ActionResult FillOutInformation(Models.Customer customer)
         {
             try
             {
@@ -159,7 +229,7 @@ namespace TrashCollector.Controllers
         }
         public ActionResult PauseService(int CustomerId)
         {
-            Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
             customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
             
             customer.TodayString = TodaysDateString();
@@ -169,7 +239,7 @@ namespace TrashCollector.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult PauseService(Customer customer)
+        public ActionResult PauseService(Models.Customer customer)
         {
             try
             {
@@ -187,7 +257,7 @@ namespace TrashCollector.Controllers
         {
             try
             {
-                Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+                Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
                 customer.StartDate = null;
                 customer.EndDate = null;
                 _context.Customers.Update(customer);
