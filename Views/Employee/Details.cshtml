@@ -47,6 +47,9 @@
         <div>Unable to find @profile.FullAddress on the map </div>
     }
 }
+<!-- Part of implementation based on what is shown in https://stackoverflow.com/questions/17195950/adding-multiple-markers-to-google-maps -->
+<!-- I used similar process of creating javascript functions for adding markers -->
+<!-- And adding in multiple calls to these through Html.Raw() -->
 @if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0)
 {
     <input type="button" class="btn btn-primary" value="Display Customers on Map" id="display-all-customers" />
