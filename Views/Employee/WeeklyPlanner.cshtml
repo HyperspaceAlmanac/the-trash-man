@@ -68,13 +68,14 @@ else
     <h1>There are no scheduled requests today</h1>
 }
 
+<input type="button" class="btn btn-primary" value="Display Customers on Map" id="show-map" />
 @if (Model.Profiles.Where(p => p.GeoLocationSuccess).Count() > 0)
 {
     <div id="allCustomersMap" class="google-map"></div>
 
     <script>
     function myMap() {
-        const latAndLng = { lat: @Model.Latitude, lng: @Model.Longitude};
+        const latAndLng = @Html.Raw("{ lat: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Latitude + ", lng: " + Model.Profiles.Where(p => p.GeoLocationSuccess).First().Longitude + " };");
         var mapProp = {
             center: latAndLng,
             zoom: 15,
@@ -82,12 +83,41 @@ else
         };
         var map = new google.maps.Map(document.getElementById("allCustomersMap"), mapProp);
 
-        var marker = new google.maps.Marker({
-            position: latAndLng,
-            map: map,
-            title: '@(Model.FullAddress)',
-            visible: true
-        });
+        @foreach (CustomerLocation profile in Model.Profiles) {
+            if (profile.GeoLocationSuccess)
+            {
+                if (profile.NeedsPickup)
+                {
+                    @Html.Raw("addRedMarker(" + profile.Latitude + ", " + profile.Longitude + ", " + "\"" + profile.FullAddress + "\");");
+                }
+                else
+                {
+                    @Html.Raw("addGreenMarker("+ profile.Latitude + ", " + profile.Longitude + ", " + "\"" + profile.FullAddress + "\");");
+                }
+            }
+         }
+         function addGreenMarker(x, y, description) {
+             var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(x, y),
+                map: map,
+                title: description,
+                icon: {
+                        url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                },
+                visible: true
+            });
+         }
+         function addRedMarker(x, y, description) {
+             var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(x, y),
+                map: map,
+                title: description,
+                icon: {
+                    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                },
+                visible: true
+             });
+         }
     }
     </script>
 
