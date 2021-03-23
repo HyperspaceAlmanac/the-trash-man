@@ -115,9 +115,23 @@ namespace TrashCollector.Controllers
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            // Unpaid but Completed Pickups this Month
+            int year = DateTime.Today.Year;
+            int month = DateTime.Today.Month;
+            List<CompletedPickup> unpaidThisMonth = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id
+                && p.Date.Year == year && p.Date.Month == month && p.Paid == false).ToList();
+            HashSet<int> thisPayment = new HashSet<int>(_context.PaymentRequests.Where(pr => pr.SessionID == session_id).Select(pr => pr.PickupId));
+            foreach (CompletedPickup pickup in unpaidThisMonth)
+            {
+                if (thisPayment.Contains(pickup.Id))
+                {
+                    pickup.Paid = true;
+                    _context.Update(pickup);
+                    _context.SaveChanges();
+                }
+            }
             return View();
         }
-
 
         // GET: CustomerController/Details/5
         public ActionResult Details(int CustomerInfo)

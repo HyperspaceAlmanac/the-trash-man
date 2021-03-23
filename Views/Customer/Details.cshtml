@@ -18,8 +18,17 @@
             @foreach (CompletedPickup pickup in Model.completedPickups)
             {
                 <p>
-                    @(pickup.OneTimePickup ? "One Time Pickup on " : "Weekly Pickup on ") @(pickup.Date.Month + "-" + pickup.Date.Day + "-" + pickup.Date.Year + " for ")
+                    @(pickup.OneTimePickup ? "One Time Pickup on " : "Weekly Pickup on ")
+                    @(pickup.Date.Month + "-" + pickup.Date.Day + "-" + pickup.Date.Year + " for ")
+                    @if (pickup.Paid)
+                    {
+                        @Html.Raw("<del>");
+                    }
                     @("$" + (pickup.OneTimePickup ? "10" : "5") + ".00")
+                    @if (pickup.Paid)
+                    {
+                        @Html.Raw("</del>");
+                    }
                 </p>
             }
             @if (Model.FeesThisMonth > 0)
