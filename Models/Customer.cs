@@ -54,6 +54,8 @@ namespace TrashCollector.Models
         public bool WeeklyPickup { get; set; }
         [NotMapped]
         public int FeesThisMonth { get; set; }
+        [NotMapped]
+        public int Offset { get; set; }
 
     }
 }

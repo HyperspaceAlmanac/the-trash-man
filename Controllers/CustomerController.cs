@@ -36,15 +36,22 @@ namespace TrashCollector.Controllers
                 return RedirectToAction(nameof(Details), new { CustomerInfo = customer.Id });
             }
         }
-
-        [HttpPost("create-checkout-session")]
-        public ActionResult CreateCheckoutSession()
+        public ActionResult MonthlyBill(int monthOffSet)
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
-            DateTime today = DateTime.Today.Date;
 
-            var pickupsThisMonth = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id && p.Date.Month == today.Month && p.Date.Year == today.Year);
+            return View();
+        }
+
+        [HttpPost("create-checkout-session")]
+        public ActionResult CreateCheckoutSession(int monthOffSet)
+        {
+            DateTime targetMonth = FindPrevMonth(monthOffSet);
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            
+            var pickupsThisMonth = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id && p.Date.Month == targetMonth.Month && p.Date.Year == targetMonth.Year);
             int totalCost = 0;
             int port = this.HttpContext.Connection.LocalPort;
 
@@ -110,6 +117,18 @@ namespace TrashCollector.Controllers
             }
 
             return Json(new { id = session.Id });
+        }
+        private DateTime FindPrevMonth(int offset)
+        {
+            DateTime today = DateTime.Today;
+            int dayOffset = today.Day;
+            today.AddDays(-dayOffset + 1); // Normalize to first day of month
+            if (offset == 0)
+            {
+                return today;
+            }
+            today.AddMonths(-offset);
+            return today;
         }
         public ActionResult Success(string session_id)
         {

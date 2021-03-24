@@ -1,0 +1,22 @@
+﻿@using TrashCollector.ViewModels;
+@model MonthlyPaymentScreen
+
+@{
+    ViewData["Title"] = "MonthlyBill";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Billing History</h1>
+<div>
+    Schedule for @(@Model.MonthDisplay):
+    <a class="btn btn-info" asp-action="MonthlyBill" asp-route-monthOffSet=@(Model.OffSet + 1)>Previous Month</a>
+    @if (Model.OffSet > 0)
+    {
+        <a class="btn btn-info" asp-action="MonthlyBill" asp-route-monthOffSet=@(Model.OffSet - 1)>Next Month</a>
+    }
+    else
+    {
+        <a class="btn btn-secondary">Next Month</a>
+    }
+</div>
+
