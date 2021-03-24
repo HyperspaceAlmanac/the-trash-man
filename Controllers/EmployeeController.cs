@@ -76,20 +76,48 @@ namespace TrashCollector.Controllers
                                  .Where(c => c.StartDate == null ||
                                  !(Utilities.CompareDays(c.StartDate.Value, today.Date) >= 0)
                                  && (Utilities.CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
+            DateTime sixDaysAgo = today.AddDays(-6);
+            // Multi-part complicated ternary operator to get day comparison to work
+            var weeklyPickupLastSixDays = _context.CompletedPickups.Where(p => !p.OneTimePickup &&
+                (p.Date.Year < sixDaysAgo.Date.Year ? false
+                : (p.Date.Month < sixDaysAgo.Date.Month ? false
+                : (p.Date.Day < sixDaysAgo.Date.Day ? false : true)))).Select(p => p.CustomerId);
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
+                c.Offset = 0;
                 // Weekly Pickup has priority over one time if on same day
                 if (Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString)
                 {
-                    c.WeeklyPickup = true;
+                    if (weeklyPickupLastSixDays.Contains(c.Id))
+                    {
+                        if (oneTimePickups.Contains(c.Id))
+                        {
+                            c.WeeklyPickup = false;
+                        } else {
+                            c.WeeklyPickup = true;
+                        }
+                        c.Offset = -1;
+                    }
+                    else
+                    {
+                        c.WeeklyPickup = true;
+                    }
                 }
                 else
                 {
                     c.WeeklyPickup = false;
                 }
                 tempProfile = new CustomerLocation();
-                tempProfile.NeedsPickup = true;
+
+                if (c.Offset == -1 && c.WeeklyPickup)
+                {
+                    tempProfile.NeedsPickup = false;
+                }
+                else
+                {
+                    tempProfile.NeedsPickup = true;
+                }
                 SetProfile(c, tempProfile);
                 employee.Profiles.Add(tempProfile);
             }
@@ -130,13 +158,18 @@ namespace TrashCollector.Controllers
             employee.NeedToCollect = new List<Customer>();
             employee.SelectedDay = offset;
 
-            // Logic for filling out the two tables
-
             today = currentDay;
             // Set of completed Pickups on this day
             HashSet<int> alreadyPickedUp = new HashSet<int>(_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
             employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+
+            DateTime sixDaysAgo = today.AddDays(-6);
+            // Multi-part complicated ternary operator to get day comparison to work
+            var weeklyPickupLastSixDays = _context.CompletedPickups.Where(p => !p.OneTimePickup &&
+                (p.Date.Year < sixDaysAgo.Date.Year ? false
+                : (p.Date.Month < sixDaysAgo.Date.Month ? false
+                : (p.Date.Day < sixDaysAgo.Date.Day ? false : true)))).Select(p => p.CustomerId);
 
             employee.Profiles = new List<CustomerLocation>();
             // Populate map
@@ -161,17 +194,40 @@ namespace TrashCollector.Controllers
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
+                c.Offset = 0;
                 // Weekly schedule pickup has priority over one time schedule
                 if (Utilities.DayNumToWord(c.PickupDay) == Utilities.DayNumToWord(today.DayOfWeek))
                 {
-                    c.WeeklyPickup = true;
+                    if (weeklyPickupLastSixDays.Contains(c.Id))
+                    {
+                        if (oneTimePickups.Contains(c.Id))
+                        {
+                            c.WeeklyPickup = false;
+                        }
+                        else
+                        {
+                            c.WeeklyPickup = true;
+                        }
+                        c.Offset = -1;
+                    }
+                    else
+                    {
+                        c.WeeklyPickup = true;
+                    }
                 }
                 else
                 {
                     c.WeeklyPickup = false;
                 }
                 tempProfile = new CustomerLocation();
-                tempProfile.NeedsPickup = true;
+                if (c.Offset == -1 && c.WeeklyPickup)
+                {
+                    tempProfile.NeedsPickup = false;
+                }
+                else
+                {
+                    tempProfile.NeedsPickup = true;
+                }
                 SetProfile(c, tempProfile);
                 employee.Profiles.Add(tempProfile);
             }

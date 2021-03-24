@@ -31,10 +31,35 @@
     <tr>
         <td>
             <div>
-                @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
-                @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
-                <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
-                <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
+                @if (customer.Offset == -1)
+                {
+                    <div class="text-info">Customer changed pickup day to today after weekly pickup</div>
+                    @if (customer.WeeklyPickup)
+                    {
+                    <div class="text-warning">
+                        Ignore Pickup request from @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                        <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
+                    </div>
+                    }
+                    else
+                    {
+                    <div class="text-info">
+                        One time pickup (also scheduled today) for @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
+                        <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
+                    </div>
+                    }
+                }
+                else
+                {
+                    <div>
+                        @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
+                        @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
+                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
+                        <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
+                    </div>
+                }
+
             </div>
         </td>
     </tr>

@@ -54,8 +54,12 @@
     {
         <tr>
             <td>
+                @if (customer.Offset == -1)
+                {
+                    <div class="text-info">Customer pickup day changed after weekly pickup</div>
+                }
                 <div>
-                    @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
+                    @(customer.Offset == -1 ? (customer.WeeklyPickup ? "Ignore request from " : "One time pickup scheduled to cover today by ") : (customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for"))
                     @(customer.FirstName + " " + customer.LastName + " on ") @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
                     <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset=@Model.SelectedDay>ViewProfile</a>
                 </div>

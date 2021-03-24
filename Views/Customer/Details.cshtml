@@ -120,7 +120,7 @@
     <tr>
         <td>
             <div>
-                Pickup scheduled for @($"{item.Date.Month}-{item.Date.Day}, {item.Date.Year}") <a class="btn btn-danger" CancelPickup" asp-route-CustomerId=@item.CustomerId asp-route-PickupDate=@item.Date>Cancel</a>
+                Pickup scheduled for @($"{item.Date.Month}-{item.Date.Day}, {item.Date.Year}") <a class="btn btn-danger" asp-action="CancelPickup" asp-route-CustomerId=@item.CustomerId asp-route-PickupDate=@item.Date>Cancel</a>
             </div>
         </td>
     </tr>
