@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TrashCollector.Data;
 using TrashCollector.Models;
+using TrashCollector.ViewModels;
 using Stripe;
 using Stripe.Checkout;
 using System.Web;
@@ -40,8 +41,28 @@ namespace TrashCollector.Controllers
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
-
-            return View();
+            MonthlyPaymentScreen monthly = new MonthlyPaymentScreen();
+            DateTime targetMonth = FindPrevMonth(monthOffSet);
+            monthly.AllPickups = _context.CompletedPickups.Where(p => p.Date.Month == targetMonth.Month && p.Date.Year == targetMonth.Year
+                && p.CustomerId == customer.Id).ToList();
+            monthly.MonthDisplay = MonthString(targetMonth.Month) + ", " + targetMonth.Year;
+            monthly.TotalCost = 0;
+            monthly.OffSet = monthOffSet;
+            foreach (CompletedPickup pickup in monthly.AllPickups)
+            {
+                if (!pickup.Paid)
+                {
+                    if (pickup.OneTimePickup)
+                    {
+                        monthly.TotalCost += 5;
+                    }
+                    else
+                    {
+                        monthly.TotalCost += 10;
+                    }
+                }
+            }
+            return View(monthly);
         }
 
         [HttpPost("create-checkout-session")]
@@ -122,12 +143,12 @@ namespace TrashCollector.Controllers
         {
             DateTime today = DateTime.Today;
             int dayOffset = today.Day;
-            today.AddDays(-dayOffset + 1); // Normalize to first day of month
+            today = today.AddDays(-dayOffset + 1); // Normalize to first day of month
             if (offset == 0)
             {
                 return today;
             }
-            today.AddMonths(-offset);
+            today = today.AddMonths(-offset);
             return today;
         }
         public ActionResult Success(string session_id)
@@ -415,6 +436,39 @@ namespace TrashCollector.Controllers
             days.Add(new SelectListItem() { Text = "Sunday", Value = "7", Selected = false });
             days[day - 1].Selected = true;
             return new SelectList(days, "Value", "Text");
+        }
+
+        private string MonthString(int month)
+        {
+            switch (month)
+            {
+                case 1:
+                    return "January";
+                case 2:
+                    return "February";
+                case 3:
+                    return "March";
+                case 4:
+                    return "April";
+                case 5:
+                    return "May";
+                case 6:
+                    return "June";
+                case 7:
+                    return "July";
+                case 8:
+                    return "August";
+                case 9:
+                    return "September";
+                case 10:
+                    return "October";
+                case 11:
+                    return "November";
+                case 12:
+                    return "December";
+                default:
+                    return "January";
+            }
         }
     }
 }

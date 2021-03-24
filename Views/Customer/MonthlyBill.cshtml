@@ -8,8 +8,8 @@
 
 <h1>Billing History</h1>
 <div>
-    Schedule for @(@Model.MonthDisplay):
     <a class="btn btn-info" asp-action="MonthlyBill" asp-route-monthOffSet=@(Model.OffSet + 1)>Previous Month</a>
+    Schedule for @(@Model.MonthDisplay)
     @if (Model.OffSet > 0)
     {
         <a class="btn btn-info" asp-action="MonthlyBill" asp-route-monthOffSet=@(Model.OffSet - 1)>Next Month</a>
@@ -20,3 +20,59 @@
     }
 </div>
 
+@if (Model.TotalCost > 0)
+{
+    <h4>Total Cost for the Month: @("$" + Model.TotalCost + ".00")  </h4>
+}
+else
+{
+    <h4>No charges</h4>
+}
+@foreach (CompletedPickup pickup in Model.AllPickups)
+{
+    <p>
+        @(pickup.OneTimePickup ? "One Time Pickup on " : "Weekly Pickup on ")
+        @(pickup.Date.Month + "-" + pickup.Date.Day + "-" + pickup.Date.Year + " for ")
+        @if (pickup.Paid)
+        {
+            @Html.Raw("<del>");
+        }
+        @("$" + (pickup.OneTimePickup ? "10" : "5") + ".00")
+        @if (pickup.Paid)
+        {
+            @Html.Raw("</del>");
+        }
+    </p>
+}
+
+@if (Model.TotalCost > 0)
+{
+    <script src="https://js.stripe.com/v3/"></script>
+    <button id="checkout-button" class="btn-primary">Make Payment</button>
+    <script type="text/javascript">
+        var stripe = Stripe('pk_test_51IYBRaIA0hLVSbphflOwHb6VZqwN4at3SyOb9QtTK7i8FwXeBp7OKETjTskQsYDEAZxAuQqRzbynz0ZOjWk5U6sB00h30v7vc4');
+        var checkoutButton = document.getElementById('checkout-button');
+
+        var urlString = '/create-checkout-session' + @Html.Raw($"'?monthOffSet={Model.OffSet}';")
+        checkoutButton.addEventListener('click', function () {
+            fetch(urlString, {
+                method: 'POST',
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (session) {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .then(function (result) {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+}
+<a asp-action="Index" class="btn btn-info">Back to dashboard</a>

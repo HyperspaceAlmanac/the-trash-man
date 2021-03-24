@@ -13,6 +13,7 @@
     <hr />
     <div class="row">
         <div class="col-sm-12 col-md-6">
+            <a asp-action="MonthlyBill" asp-route-monthOffSet="0" class="btn btn-info">Past Months Records</a>
             <h2> Trash Collection Day: @Html.DisplayFor(model => model.DayOfWeek)</h2>
             <h3>Total Charges This Month: @("$" + Model.FeesThisMonth + ".00")</h3>
             @foreach (CompletedPickup pickup in Model.completedPickups)
@@ -39,7 +40,7 @@
                 var checkoutButton = document.getElementById('checkout-button');
 
                 checkoutButton.addEventListener('click', function () {
-                    fetch('/create-checkout-session', {
+                    fetch('/create-checkout-session?monthOffSet=0', {
                         method: 'POST',
                     })
                         .then(function (response) {

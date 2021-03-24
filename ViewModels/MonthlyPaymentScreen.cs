@@ -12,7 +12,6 @@ namespace TrashCollector.ViewModels
         public int OffSet { get; set; }
         public string MonthDisplay { get; set; }
         public int TotalCost { get; set; }
-        public List<CompletedPickup> PaidPickups { get; set; }
-        public List<CompletedPickup> RemainingPickups { get; set; }
+        public List<CompletedPickup> AllPickups { get; set; }
     }
 }
