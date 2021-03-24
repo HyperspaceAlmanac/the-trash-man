@@ -48,8 +48,8 @@ namespace TrashCollector.Controllers
             }
             
             string dayOfWeekString;
-            dayOfWeekString = DayNumToWord(today.DayOfWeek);
-            employee.WeekDay = dayOfWeekString + ", " + MonthString(today.Month) + $" {today.Day}, {today.Year}";
+            dayOfWeekString = Utilities.DayNumToWord(today.DayOfWeek);
+            employee.WeekDay = dayOfWeekString + ", " + Utilities.MonthString(today.Month) + $" {today.Day}, {today.Year}";
             
             // Set of completed Pickups on this day
             HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(c => c.Date.Year == today.Year
@@ -71,16 +71,16 @@ namespace TrashCollector.Controllers
                 .Where(p=> p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
             // Find all customers in area with trash collection today
             employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode).ToList()
-                                 .Where(c => DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
+                                 .Where(c => Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
-                                 !(CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
+                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) >= 0)
+                                 && (Utilities.CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
                 // Weekly Pickup has priority over one time if on same day
-                if (DayNumToWord(c.PickupDay) == dayOfWeekString)
+                if (Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString)
                 {
                     c.WeeklyPickup = true;
                 }
@@ -109,23 +109,23 @@ namespace TrashCollector.Controllers
                 today = employee.SimulatedDay.Value;
             }
 
-            DateTime currentDay = today.AddDays(-DayofWeekOffset(today.Date.DayOfWeek));
+            DateTime currentDay = today.AddDays(-Utilities.DayofWeekOffset(today.Date.DayOfWeek));
             if (offset == -1)
             {
                 currentDay = today;
-                offset = DayofWeekOffset(today.Date.DayOfWeek);
+                offset = Utilities.DayofWeekOffset(today.Date.DayOfWeek);
             }
             else
             {
                 currentDay = currentDay.AddDays(offset);
             }
             // String WeekDay for Date and Day of week display
-            string dayOfWeekString = DayNumToWord(currentDay.DayOfWeek);
-            DateTime firstDayOfWeek = currentDay.AddDays(-DayofWeekOffset(currentDay.Date.DayOfWeek));
-            string firstDayOfWeekString = DayNumToWord(firstDayOfWeek.DayOfWeek);
+            string dayOfWeekString = Utilities.DayNumToWord(currentDay.DayOfWeek);
+            DateTime firstDayOfWeek = currentDay.AddDays(-Utilities.DayofWeekOffset(currentDay.Date.DayOfWeek));
+            string firstDayOfWeekString = Utilities.DayNumToWord(firstDayOfWeek.DayOfWeek);
 
-            employee.WeekDay = dayOfWeekString + ", " + MonthString(currentDay.Month) + $" {currentDay.Day}, {currentDay.Year}";
-            employee.WeekOf = firstDayOfWeekString + ", " + MonthString(firstDayOfWeek.Month) + $" {firstDayOfWeek.Day}, {firstDayOfWeek.Year}";
+            employee.WeekDay = dayOfWeekString + ", " + Utilities.MonthString(currentDay.Month) + $" {currentDay.Day}, {currentDay.Year}";
+            employee.WeekOf = firstDayOfWeekString + ", " + Utilities.MonthString(firstDayOfWeek.Month) + $" {firstDayOfWeek.Day}, {firstDayOfWeek.Year}";
             employee.Completed = new List<Customer>();
             employee.NeedToCollect = new List<Customer>();
             employee.SelectedDay = offset;
@@ -153,16 +153,16 @@ namespace TrashCollector.Controllers
                 .Where(p => p.Date.Year == today.Year && p.Date.Month == today.Month && p.Date.Day == today.Day).Select(p => p.CustomerId));
             // Find all customers in area with trash collection today
             employee.NeedToCollect = _context.Customers.Where(c => c.ZipCode == employee.ZipCode).ToList()
-                                 .Where(c => DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
+                                 .Where(c => Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
-                                 !(CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
+                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) >= 0)
+                                 && (Utilities.CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
                 // Weekly schedule pickup has priority over one time schedule
-                if (DayNumToWord(c.PickupDay) == DayNumToWord(today.DayOfWeek))
+                if (Utilities.DayNumToWord(c.PickupDay) == Utilities.DayNumToWord(today.DayOfWeek))
                 {
                     c.WeeklyPickup = true;
                 }
@@ -328,158 +328,6 @@ namespace TrashCollector.Controllers
             }
             return true;
 
-        }
-
-        private string DayNumToWord(DayOfWeek val)
-        {
-            switch (val)
-            {
-                case DayOfWeek.Monday:
-                    return "Monday";
-                case DayOfWeek.Tuesday:
-                    return "Tuesday";
-                case DayOfWeek.Wednesday:
-                    return "Wednesday";
-                case DayOfWeek.Thursday:
-                    return "Thursday";
-                case DayOfWeek.Friday:
-                    return "Friday";
-                case DayOfWeek.Saturday:
-                    return "Saturday";
-                case DayOfWeek.Sunday:
-                    return "Sunday";
-                default:
-                    return "Monday";
-            }
-        }
-        private int DayofWeekOffset(DayOfWeek val)
-        {
-            switch (val)
-            {
-                case DayOfWeek.Monday:
-                    return 0;
-                case DayOfWeek.Tuesday:
-                    return 1;
-                case DayOfWeek.Wednesday:
-                    return 2;
-                case DayOfWeek.Thursday:
-                    return 3;
-                case DayOfWeek.Friday:
-                    return 4;
-                case DayOfWeek.Saturday:
-                    return 5;
-                case DayOfWeek.Sunday:
-                    return 6;
-                default:
-                    return 0;
-            }
-        }
-        private string DayNumToWord(int val)
-        {
-            switch (val)
-            {
-                case 1:
-                    return "Monday";
-                case 2:
-                    return "Tuesday";
-                case 3:
-                    return "Wednesday";
-                case 4:
-                    return "Thursday";
-                case 5:
-                    return "Friday";
-                case 6:
-                    return "Saturday";
-                case 7:
-                    return "Sunday";
-                default:
-                    return "Monday";
-            }
-        }
-        private string MonthString(int month)
-        {
-            switch (month)
-            {
-                case 1:
-                    return "January";
-                case 2:
-                    return "February";
-                case 3:
-                    return "March";
-                case 4:
-                    return "April";
-                case 5:
-                    return "May";
-                case 6:
-                    return "June";
-                case 7:
-                    return "July";
-                case 8:
-                    return "August";
-                case 9:
-                    return "September";
-                case 10:
-                    return "October";
-                case 11:
-                    return "November";
-                case 12:
-                    return "December";
-                default:
-                    return "January";
-            }
-        }
-        private int CompareDays(DateTime left, DateTime right)
-        {
-            if (left.Year > right.Year)
-            {
-                return 1;
-            }
-            else if (left.Year < right.Year)
-            {
-                return -1;
-            }
-            if (left.Month > right.Month)
-            {
-                return 1;
-            }
-            else if (left.Month < right.Month)
-            {
-                return -1;
-            }
-            if (left.Day > right.Day)
-            {
-                return 1;
-            }
-            else if (left.Day < right.Day)
-            {
-                return -1;
-            }
-            return 0;
-        }
-        private string DateToString(DateTime dateValue)
-        {
-            int year = dateValue.Date.Year;
-            string month = (dateValue.Month > 9 ? "" : "0") + dateValue.Month.ToString();
-            string day = (dateValue.Day > 9 ? "" : "0") + dateValue.Day.ToString();
-            string date = $"{year}-{month}-{day}";
-            return date;
-        }
-        private SelectList GenerateDaysSelectList(int day)
-        {
-            if (day == 0)
-            {
-                day = 1;
-            }
-            List<SelectListItem> days = new List<SelectListItem>();
-            days.Add(new SelectListItem() { Text = "Monday", Value = "1", Selected = false });
-            days.Add(new SelectListItem() { Text = "Tuesday", Value = "2", Selected = false });
-            days.Add(new SelectListItem() { Text = "Wednesday", Value = "3", Selected = false });
-            days.Add(new SelectListItem() { Text = "Thursday", Value = "4", Selected = false });
-            days.Add(new SelectListItem() { Text = "Friday", Value = "5", Selected = false });
-            days.Add(new SelectListItem() { Text = "Saturday", Value = "6", Selected = false });
-            days.Add(new SelectListItem() { Text = "Sunday", Value = "7", Selected = false });
-            days[day - 1].Selected = true;
-            return new SelectList(days, "Value", "Text");
         }
     }
 }

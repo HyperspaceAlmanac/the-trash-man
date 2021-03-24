@@ -45,7 +45,7 @@ namespace TrashCollector.Controllers
             DateTime targetMonth = FindPrevMonth(monthOffSet);
             monthly.AllPickups = _context.CompletedPickups.Where(p => p.Date.Month == targetMonth.Month && p.Date.Year == targetMonth.Year
                 && p.CustomerId == customer.Id).ToList();
-            monthly.MonthDisplay = MonthString(targetMonth.Month) + ", " + targetMonth.Year;
+            monthly.MonthDisplay = Utilities.MonthString(targetMonth.Month) + ", " + targetMonth.Year;
             monthly.TotalCost = 0;
             monthly.OffSet = monthOffSet;
             foreach (CompletedPickup pickup in monthly.AllPickups)
@@ -158,12 +158,11 @@ namespace TrashCollector.Controllers
             // Unpaid but Completed Pickups this Month
             int year = DateTime.Today.Year;
             int month = DateTime.Today.Month;
-            List<CompletedPickup> unpaidThisMonth = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id
-                && p.Date.Year == year && p.Date.Month == month && p.Paid == false).ToList();
+            List<CompletedPickup> customerHistory = _context.CompletedPickups.Where(p => p.CustomerId == customer.Id).ToList();
             HashSet<int> thisPayment = new HashSet<int>(_context.PaymentRequests.Where(pr => pr.SessionID == session_id).Select(pr => pr.PickupId));
-            foreach (CompletedPickup pickup in unpaidThisMonth)
+            foreach (CompletedPickup pickup in customerHistory)
             {
-                if (thisPayment.Contains(pickup.Id))
+                if (thisPayment.Contains(pickup.Id) && !pickup.Paid)
                 {
                     pickup.Paid = true;
                     _context.Update(pickup);
@@ -177,7 +176,7 @@ namespace TrashCollector.Controllers
         public ActionResult Details(int CustomerInfo)
         {
             Models.Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
-            c.DayOfWeek = DayNumToWord(c.PickupDay);
+            c.DayOfWeek = Utilities.DayNumToWord(c.PickupDay);
             c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
 
             DateTime today = DateTime.Today.Date;
@@ -222,7 +221,7 @@ namespace TrashCollector.Controllers
                 string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
             } 
-            customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
+            customer.DayOptions = Utilities.GenerateDaysSelectList(customer.PickupDay);
             return View(customer);
         }
 
@@ -301,7 +300,7 @@ namespace TrashCollector.Controllers
         public ActionResult PauseService(int CustomerId)
         {
             Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
-            customer.DayOptions = GenerateDaysSelectList(customer.PickupDay);
+            customer.DayOptions = Utilities.GenerateDaysSelectList(customer.PickupDay);
             
             customer.TodayString = TodaysDateString();
             return View(customer);
@@ -340,35 +339,7 @@ namespace TrashCollector.Controllers
                 return RedirectToAction(nameof(Details), new { CustomerInfo = CustomerId });
             }
         }
-        // left < right => -1, left = right => 0, left > right => 1
-        private int CompareDays(DateTime left, DateTime right)
-        {
-            if (left.Year > right.Year)
-            {
-                return 1;
-            }
-            else if (left.Year < right.Year)
-            {
-                return -1;
-            }
-            if (left.Month > right.Month)
-            {
-                return 1;
-            }
-            else if (left.Month < right.Month)
-            {
-                return -1;
-            }
-            if (left.Day > right.Day)
-            {
-                return 1;
-            }
-            else if (left.Day < right.Day)
-            {
-                return -1;
-            }
-            return 0;
-        }
+
         private string TodaysDateString()
         {
             int year = DateTime.Today.Year;
@@ -376,99 +347,6 @@ namespace TrashCollector.Controllers
             string day = (DateTime.Today.Day > 9 ? "" : "0") + DateTime.Today.Day.ToString();
             string date = $"{year}-{month}-{day}";
             return date;
-        }
-        private string DayNumToWord(int day)
-        {
-            switch (day)
-            {
-                case 1:
-                    return "Monday";
-                case 2:
-                    return "Tuesday";
-                case 3:
-                    return "Wednesday";
-                case 4:
-                    return "Thursday";
-                case 5:
-                    return "Friday";
-                case 6:
-                    return "Saturday";
-                case 7:
-                    return "Sunday";
-                default:
-                    return "Monday";
-            }
-        }
-        private int DayEnumToInt(DayOfWeek day) {
-            switch (day)
-            {
-                case DayOfWeek.Monday:
-                    return 1;
-                case DayOfWeek.Tuesday:
-                    return 2;
-                case DayOfWeek.Wednesday:
-                    return 3;
-                case DayOfWeek.Thursday:
-                    return 4;
-                case DayOfWeek.Friday:
-                    return 5;
-                case DayOfWeek.Saturday:
-                    return 6;
-                case DayOfWeek.Sunday:
-                    return 7;
-                default:
-                    return 1;
-            }
-        }
-        private SelectList GenerateDaysSelectList(int day)
-        {
-            if (day == 0)
-            {
-                day = 1;
-            }
-            List<SelectListItem> days = new List<SelectListItem>();
-            days.Add(new SelectListItem() { Text = "Monday", Value = "1", Selected = false });
-            days.Add(new SelectListItem() { Text = "Tuesday", Value = "2", Selected = false });
-            days.Add(new SelectListItem() { Text = "Wednesday", Value = "3", Selected = false });
-            days.Add(new SelectListItem() { Text = "Thursday", Value = "4", Selected = false });
-            days.Add(new SelectListItem() { Text = "Friday", Value = "5", Selected = false });
-            days.Add(new SelectListItem() { Text = "Saturday", Value = "6", Selected = false });
-            days.Add(new SelectListItem() { Text = "Sunday", Value = "7", Selected = false });
-            days[day - 1].Selected = true;
-            return new SelectList(days, "Value", "Text");
-        }
-
-        private string MonthString(int month)
-        {
-            switch (month)
-            {
-                case 1:
-                    return "January";
-                case 2:
-                    return "February";
-                case 3:
-                    return "March";
-                case 4:
-                    return "April";
-                case 5:
-                    return "May";
-                case 6:
-                    return "June";
-                case 7:
-                    return "July";
-                case 8:
-                    return "August";
-                case 9:
-                    return "September";
-                case 10:
-                    return "October";
-                case 11:
-                    return "November";
-                case 12:
-                    return "December";
-                default:
-                    return "January";
-            }
         }
     }
 }
