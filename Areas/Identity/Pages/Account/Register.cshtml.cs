@@ -43,7 +43,7 @@ namespace TrashCollector.Areas.Identity.Pages.Account
 
         [BindProperty]
         public InputModel Input { get; set; }
-        public SelectList Roles { get; set; }
+        public bool IsCustomer { get; set; }
 
         public string ReturnUrl { get; set; }
 
@@ -68,15 +68,14 @@ namespace TrashCollector.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
 
             [Required]
-            public string Role { get; set; }
+            public bool IsCustomer { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            var roles = _roleManager.Roles;
-            Roles = new SelectList(roles, "Name", "Name");
+            IsCustomer = true;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -89,9 +88,9 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    if (await _roleManager.RoleExistsAsync(Input.Role))
+                    if (await _roleManager.RoleExistsAsync(Input.IsCustomer ? "Customer" : "Employee"))
                     {
-                        await _userManager.AddToRoleAsync(user, Input.Role);
+                        await _userManager.AddToRoleAsync(user, Input.IsCustomer ? "Customer" : "Employee");
                     }
                     _logger.LogInformation("User created a new account with password.");
 
@@ -114,15 +113,15 @@ namespace TrashCollector.Areas.Identity.Pages.Account
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        if (Input.Role == "Customer")
+                        if (Input.IsCustomer)
                         {
                             Customer customer = new Customer { LoginEmail = user.UserName, IdentityUserId = user.Id, CompletedRegistration = false, AddressSaved = false };
                             return RedirectToAction("RegisterAccount", "Customer", customer);
                         }
-                        else if (Input.Role == "Employee")
+                        else
                         {
 
-                        Employee employee = new Employee { LoginEmail = user.UserName, IdentityUserId = user.Id, CompletedRegistration = false };
+                            Employee employee = new Employee { LoginEmail = user.UserName, IdentityUserId = user.Id, CompletedRegistration = false };
                             return RedirectToAction("RegisterAccount", "Employee", employee);
                         }
                     }
