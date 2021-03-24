@@ -36,5 +36,7 @@ namespace TrashCollector.Models
         public string WeekOf { get; set; }
         [NotMapped]
         public List<CustomerLocation> Profiles { get; set; }
+        [NotMapped]
+        public bool PreviousDays { get; set; }
     }
 }

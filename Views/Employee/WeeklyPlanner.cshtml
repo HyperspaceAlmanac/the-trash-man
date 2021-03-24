@@ -49,7 +49,14 @@
 
 @if (Model.NeedToCollect.Count > 0)
 {
-    <h1>Scheduled Requests</h1>
+    @if (Model.PreviousDays)
+    {
+        <h1>Unfulfilled Requests</h1>
+    }
+    else
+    {
+        <h1>Scheduled Requests</h1>
+    }
     foreach (var customer in Model.NeedToCollect)
     {
         <tr>
@@ -69,7 +76,7 @@
 }
 else
 {
-    <h1>There are no scheduled requests today</h1>
+    <h1>There are no more scheduled requests today</h1>
 }
 
 <!-- Part of implementation based on what is shown in https://stackoverflow.com/questions/17195950/adding-multiple-markers-to-google-maps -->

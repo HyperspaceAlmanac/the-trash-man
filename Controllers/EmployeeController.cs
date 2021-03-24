@@ -147,6 +147,14 @@ namespace TrashCollector.Controllers
             {
                 currentDay = currentDay.AddDays(offset);
             }
+            if (Utilities.CompareDays(currentDay, today) < 0)
+            {
+                employee.PreviousDays = true;
+            }
+            else
+            {
+                employee.PreviousDays = false;
+            }
             // String WeekDay for Date and Day of week display
             string dayOfWeekString = Utilities.DayNumToWord(currentDay.DayOfWeek);
             DateTime firstDayOfWeek = currentDay.AddDays(-Utilities.DayofWeekOffset(currentDay.Date.DayOfWeek));
