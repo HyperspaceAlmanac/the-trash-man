@@ -54,11 +54,11 @@ namespace TrashCollector.Controllers
                 {
                     if (pickup.OneTimePickup)
                     {
-                        monthly.TotalCost += 5;
+                        monthly.TotalCost += 10;
                     }
                     else
                     {
-                        monthly.TotalCost += 10;
+                        monthly.TotalCost += 5;
                     }
                 }
             }

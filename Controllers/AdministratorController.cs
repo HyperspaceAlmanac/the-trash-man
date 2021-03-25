@@ -26,13 +26,13 @@ namespace TrashCollector.Controllers
             if (!ranOperations)
             {
                 // Run the one time methods here
-                // AddUnpaidDeliveries();
+                //AddDeliveries();
                 ranOperations = true;
             }
             return View();
         }
 
-        private void AddUnpaidDeliveries()
+        private void AddDeliveries()
         {
             DateTime twoWeeksAgo = DateTime.Today.AddDays(-14);
             DateTime placeHolder;
@@ -42,19 +42,27 @@ namespace TrashCollector.Controllers
             {
                 daysOffset = 3 - c.PickupDay;
                 placeHolder = twoWeeksAgo.AddDays(-daysOffset);
+                if (c.Id != 1021)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        pickup = new CompletedPickup { CustomerId = c.Id, OneTimePickup = false, Paid = false, Date = placeHolder };
+                        _context.CompletedPickups.Add(pickup);
+                        placeHolder = placeHolder.AddDays(-7);
+                    }
+                }
+                placeHolder = twoWeeksAgo.AddDays(-daysOffset + 1);
                 for (int i = 0; i < 8; i++)
                 {
-                    pickup = new CompletedPickup { CustomerId = c.Id, OneTimePickup = false, Paid = false, Date = placeHolder };
-                    _context.CompletedPickups.Add(pickup);
+                    if (i % 2 == 0)
+                    {
+                        pickup = new CompletedPickup { CustomerId = c.Id, OneTimePickup = true, Paid = false, Date = placeHolder };
+                        _context.CompletedPickups.Add(pickup);
+                    }
                     placeHolder = placeHolder.AddDays(-7);
                 }
-                break;
             }
             _context.SaveChanges();
-        }
-
-        private void AddPaidDeliveries()
-        {
         }
     }
 }
