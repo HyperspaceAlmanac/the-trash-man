@@ -56,6 +56,8 @@ namespace TrashCollector.Models
         public int FeesThisMonth { get; set; }
         [NotMapped]
         public int Offset { get; set; }
+        [NotMapped]
+        public bool PauseError { get; set; }
 
     }
 }

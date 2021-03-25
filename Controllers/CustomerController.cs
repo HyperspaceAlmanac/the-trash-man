@@ -304,7 +304,7 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-        public ActionResult PauseService()
+        public ActionResult PauseService(bool error)
         {
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
@@ -313,6 +313,7 @@ namespace TrashCollector.Controllers
                 return RedirectToAction(nameof(Warning));
             }
             customer.DayOptions = Utilities.GenerateDaysSelectList(customer.PickupDay);
+            customer.PauseError = error;
             
             customer.TodayString = TodaysDateString();
             return View(customer);
@@ -325,6 +326,10 @@ namespace TrashCollector.Controllers
         {
             try
             {
+                if (Utilities.CompareDays(customer.StartDate.Value, customer.EndDate.Value) == 1)
+                {
+                    return RedirectToAction(nameof(PauseService), new { error = true });
+                }
                 _context.Customers.Update(customer);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));

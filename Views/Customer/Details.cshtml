@@ -106,7 +106,7 @@
 <div>
     @if (Model.StartDate == null)
     {
-        <a asp-action="PauseService" class="btn btn-info">Click Here to Pause Service</a>
+        <a asp-action="PauseService" asp-route-error="false" class="btn btn-info">Click Here to Pause Service</a>
     }
     else
     {

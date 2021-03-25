@@ -28,7 +28,9 @@
             <input type="hidden" asp-for="AddressSaved" />
             <input type="hidden" asp-for="CompletedRegistration" />
 
-
+            @if (Model.PauseError) {
+                <p class="text-warning">Start Date is later than End Date. Please try again.</p>   
+            }
 
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>
