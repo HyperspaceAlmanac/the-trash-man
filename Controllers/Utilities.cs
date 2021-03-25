@@ -106,6 +106,7 @@ namespace TrashCollector.Controllers
                     return "January";
             }
         }
+        // left > right: 1, left < right: - 1, left = right: 0
         public static int CompareDays(DateTime left, DateTime right)
         {
             if (left.Year > right.Year)

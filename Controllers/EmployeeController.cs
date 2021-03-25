@@ -54,7 +54,7 @@ namespace TrashCollector.Controllers
             // Set of completed Pickups on this day
             HashSet<int> alreadyPickedUp = new HashSet<int> (_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                 && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
-            employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+            employee.Completed = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && alreadyPickedUp.Contains(c.Id)).ToList();
 
             employee.Profiles = new List<CustomerLocation>();
             // Populate map
@@ -74,8 +74,8 @@ namespace TrashCollector.Controllers
                                  .Where(c => Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
-                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (Utilities.CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
+                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) <= 0
+                                 && Utilities.CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
             DateTime sixDaysAgo = today.AddDays(-6);
             // Multi-part complicated ternary operator to get day comparison to work
             var weeklyPickupLastSixDays = _context.CompletedPickups.Where(p => !p.OneTimePickup &&
@@ -170,7 +170,7 @@ namespace TrashCollector.Controllers
             // Set of completed Pickups on this day
             HashSet<int> alreadyPickedUp = new HashSet<int>(_context.CompletedPickups.Where(c => c.Date.Year == today.Year
                && c.Date.Month == today.Month && c.Date.Day == today.Day).Select(c => c.CustomerId));
-            employee.Completed = _context.Customers.Where(c => alreadyPickedUp.Contains(c.Id)).ToList();
+            employee.Completed = _context.Customers.Where(c => c.ZipCode == employee.ZipCode && alreadyPickedUp.Contains(c.Id)).ToList();
 
             DateTime sixDaysAgo = today.AddDays(-6);
             // Multi-part complicated ternary operator to get day comparison to work
@@ -197,8 +197,8 @@ namespace TrashCollector.Controllers
                                  .Where(c => Utilities.DayNumToWord(c.PickupDay) == dayOfWeekString || oneTimePickups.Contains(c.Id))
                                  .Where(c => !alreadyPickedUp.Contains(c.Id))
                                  .Where(c => c.StartDate == null ||
-                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) >= 0)
-                                 && (Utilities.CompareDays(today.Date, c.EndDate.Value) >= 0)).ToList();
+                                 !(Utilities.CompareDays(c.StartDate.Value, today.Date) <= 0
+                                 && Utilities.CompareDays(today.Date, c.EndDate.Value) <= 0)).ToList();
             // Separate weekly and one time pickups here
             foreach (var c in employee.NeedToCollect)
             {
