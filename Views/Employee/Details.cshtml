@@ -7,7 +7,7 @@
 }
 
 <h1>Welcome back, @Model.FirstName @Model.LastName!</h1>
-<a asp-action="FillOutInformation" asp-route-EmployeeId="@Model.Id" class="btn btn-primary">Update Information</a>
+<a asp-action="FillOutInformation" class="btn btn-primary">Update Information</a>
 <br />
 <a class="btn btn-info" asp-action="WeeklyPlanner" asp-route-offset=-1>Weekly Planner</a>
 <br />
@@ -45,7 +45,7 @@
                     {
                     <div class="text-info">
                         One time pickup (also scheduled today) for @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
-                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
+                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
                         <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
                     </div>
                     }
@@ -55,7 +55,7 @@
                     <div>
                         @(customer.WeeklyPickup ? "Scheduled Weekly Pickup for" : "One time pickup for")
                         @customer.FirstName @customer.LastName on @($"{customer.StreetAddress} {customer.City}, {customer.State} {customer.ZipCode}")
-                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-EmployeeId=@Model.Id asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
+                        <a class="btn btn-info" asp-action="CompletePickup" asp-route-CustomerId=@customer.Id asp-route-weeklyPickup=@customer.WeeklyPickup>Confirm Pickup</a>
                         <a class="btn btn-warning" asp-action="CustomerProfile" asp-route-CustomerId=@customer.Id asp-route-NeedsPickup="true" asp-route-Offset="-1">ViewProfile</a>
                     </div>
                 }

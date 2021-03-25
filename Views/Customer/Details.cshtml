@@ -97,7 +97,7 @@
                 @Html.DisplayFor(model => model.ZipCode)
             </dd>
             <dt>
-                <a asp-action="FillOutInformation" asp-route-CustomerId="@Model.Id" class="btn btn-primary">Update Information Or Change Collection Day</a>
+                <a asp-action="FillOutInformation" class="btn btn-primary">Update Information Or Change Collection Day</a>
             </dt>
         </dl>
     </div>
@@ -106,12 +106,12 @@
 <div>
     @if (Model.StartDate == null)
     {
-        <a asp-action="PauseService" asp-route-CustomerId="@Model.Id" class="btn btn-info">Click Here to Pause Service</a>
+        <a asp-action="PauseService" class="btn btn-info">Click Here to Pause Service</a>
     }
     else
     {
-        <p>The service is currently paused from @Model.StartDate.Value.ToShortDateString()  to @Model.EndDate.Value.ToShortDateString() (Resumes the day after) </p>
-        <a asp-action="RestoreService" asp-route-CustomerId="@Model.Id" class="btn btn-primary">Click here to restore service</a>
+        <p class="text-danger">The service is currently paused from @Model.StartDate.Value.ToShortDateString()  to @Model.EndDate.Value.ToShortDateString() (Resumes the day after) </p>
+        <a asp-action="RestoreService"  class="btn btn-primary">Click here to restore service</a>
     }
 </div>
 <h1>Additional One Time Pickups</h1>
@@ -120,12 +120,12 @@
     <tr>
         <td>
             <div>
-                Pickup scheduled for @($"{item.Date.Month}-{item.Date.Day}, {item.Date.Year}") <a class="btn btn-danger" asp-action="CancelPickup" asp-route-CustomerId=@item.CustomerId asp-route-PickupDate=@item.Date>Cancel</a>
+                Pickup scheduled for @($"{item.Date.Month}-{item.Date.Day}, {item.Date.Year}") <a class="btn btn-danger" asp-action="CancelPickup" asp-route-PickupDate=@item.Date>Cancel</a>
             </div>
         </td>
     </tr>
 }
 <div>
-    <a asp-action="RegisterOneTimePickup" asp-route-CustomerId="@Model.Id" class="btn btn-primary">One Time Pickup</a>
+    <a asp-action="RegisterOneTimePickup" class="btn btn-primary">One Time Pickup</a>
 </div>
 

@@ -32,9 +32,9 @@ namespace TrashCollector.Controllers
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
             if (!customer.CompletedRegistration) {
-                return RedirectToAction(nameof(FillOutInformation), new { CustomerInfo = customer.Id });
+                return RedirectToAction(nameof(FillOutInformation));
             } else {
-                return RedirectToAction(nameof(Details), new { CustomerInfo = customer.Id });
+                return RedirectToAction(nameof(Details));
             }
         }
         public ActionResult MonthlyBill(int monthOffSet)
@@ -173,14 +173,19 @@ namespace TrashCollector.Controllers
         }
 
         // GET: CustomerController/Details/5
-        public ActionResult Details(int CustomerInfo)
+        public ActionResult Details()
         {
-            Models.Customer c = _context.Customers.Where(c => c.Id == CustomerInfo).SingleOrDefault();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer c = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (c == null)
+            {
+                return RedirectToAction(nameof(Warning));
+            }
             c.DayOfWeek = Utilities.DayNumToWord(c.PickupDay);
-            c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerInfo).ToList();
+            c.oneTimePickups = _context.OneTimePickups.Where(p => p.CustomerId == c.Id).ToList();
 
             DateTime today = DateTime.Today.Date;
-            c.completedPickups = _context.CompletedPickups.Where(p => p.CustomerId == CustomerInfo && p.Date.Month == today.Month && p.Date.Year == today.Year).ToList();
+            c.completedPickups = _context.CompletedPickups.Where(p => p.CustomerId == c.Id && p.Date.Month == today.Month && p.Date.Year == today.Year).ToList();
             int totalCost = 0;
             foreach (CompletedPickup pickup in c.completedPickups)
             {
@@ -207,7 +212,7 @@ namespace TrashCollector.Controllers
             _context.SaveChanges();
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int id = _context.Customers.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
-            return RedirectToAction(nameof(FillOutInformation), new { CustomerId = id });
+            return RedirectToAction(nameof(FillOutInformation));
         }
 
         // POST: CustomerController/RegisterAccount
@@ -243,11 +248,13 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-        public ActionResult CancelPickup(int CustomerId, DateTime PickupDate)
+        public ActionResult CancelPickup(DateTime PickupDate)
         {
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
             try
             {
-                var pickups = _context.OneTimePickups.Where(p => p.CustomerId == CustomerId && p.Date == PickupDate);
+                var pickups = _context.OneTimePickups.Where(p => p.CustomerId == customer.Id && p.Date == PickupDate);
                 // For timing issue of Customer on the page to cancel, but does not cancel until after Employee collects trash
                 if (pickups.Count() == 1)
                 {
@@ -297,9 +304,14 @@ namespace TrashCollector.Controllers
                 return View();
             }
         }
-        public ActionResult PauseService(int CustomerId)
+        public ActionResult PauseService()
         {
-            Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (customer == null)
+            {
+                return RedirectToAction(nameof(Warning));
+            }
             customer.DayOptions = Utilities.GenerateDaysSelectList(customer.PickupDay);
             
             customer.TodayString = TodaysDateString();
@@ -323,11 +335,16 @@ namespace TrashCollector.Controllers
             }
         }
 
-        public ActionResult RestoreService(int CustomerId)
+        public ActionResult RestoreService()
         {
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Models.Customer customer = _context.Customers.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (customer == null)
+            {
+                return RedirectToAction(nameof(Warning));
+            }
             try
             {
-                Models.Customer customer = _context.Customers.Where(c => c.Id == CustomerId).SingleOrDefault();
                 customer.StartDate = null;
                 customer.EndDate = null;
                 _context.Customers.Update(customer);
@@ -336,8 +353,12 @@ namespace TrashCollector.Controllers
             }
             catch
             {
-                return RedirectToAction(nameof(Details), new { CustomerInfo = CustomerId });
+                return RedirectToAction(nameof(Details));
             }
+        }
+        public ActionResult Warning()
+        {
+            return View();
         }
 
         private string TodaysDateString()

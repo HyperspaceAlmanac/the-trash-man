@@ -30,18 +30,23 @@ namespace TrashCollector.Controllers
             Employee employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
             if (!employee.CompletedRegistration)
             {
-                return RedirectToAction(nameof(FillOutInformation), new { EmployeeInfo = employee.Id });
+                return RedirectToAction(nameof(FillOutInformation));
             }
             else
             {
-                return RedirectToAction(nameof(Details), new { EmployeeInfo = employee.Id });
+                return RedirectToAction(nameof(Details));
             }
         }
 
         // GET: EmployeeController/Details/5
-        public ActionResult Details(int EmployeeInfo)
+        public ActionResult Details()
         {
-            Employee employee = _context.Employees.Where(e => e.Id == EmployeeInfo).SingleOrDefault();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(e => e.IdentityUserId == identifier).SingleOrDefault();
+            if (employee == null)
+            {
+                return RedirectToAction(nameof(Warning));
+            }
             DateTime today = DateTime.Today;
             if (employee.UseSimulatedDay) {
                 today = employee.SimulatedDay.Value;
@@ -243,9 +248,15 @@ namespace TrashCollector.Controllers
             return View(employee);
 
         }
-        public ActionResult CompletePickup(int CustomerId, int EmployeeId, bool weeklyPickup)
+        public ActionResult CompletePickup(int CustomerId, bool weeklyPickup)
         {
-            Employee employee = _context.Employees.Where(e => e.Id == EmployeeId).FirstOrDefault();
+            // Really should authenticate this
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+            if (employee == null)
+            {
+                return RedirectToAction(nameof(Warning));
+            }
             DateTime today = DateTime.Today;
             if (employee.UseSimulatedDay)
             {
@@ -286,19 +297,19 @@ namespace TrashCollector.Controllers
             _context.SaveChanges();
             string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int id = _context.Employees.Where(c => c.IdentityUserId == identifier).Select(c => c.Id).SingleOrDefault();
-            return RedirectToAction(nameof(FillOutInformation), new { EmployeeId = id });
+            return RedirectToAction(nameof(FillOutInformation));
         }
 
         // POST: EmployeeController/RegisterAccount
 
-        public ActionResult FillOutInformation(int EmployeeId)
+        public ActionResult FillOutInformation()
         {
-            Employee employee = _context.Employees.Where(c => c.Id == EmployeeId).SingleOrDefault();
+            string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Employee employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+
             if (employee == null)
             {
-                // For when registration is interrupted
-                string identifier = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                employee = _context.Employees.Where(c => c.IdentityUserId == identifier).SingleOrDefault();
+                return RedirectToAction(nameof(Warning));
             }
             return View(employee);
         }
@@ -319,6 +330,10 @@ namespace TrashCollector.Controllers
             {
                 return View();
             }
+        }
+        public ActionResult Warning()
+        {
+            return View();
         }
 
         public ActionResult CustomerProfile(int CustomerId, bool NeedsPickup, int Offset)
